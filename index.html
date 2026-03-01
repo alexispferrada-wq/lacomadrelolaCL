@@ -644,6 +644,211 @@
             transform: skewX(-25deg);
             animation: shine 3s infinite;
         }
+
+        /* ================= MEDIA QUERIES - RESPONSIVE ================= */
+        /* Ocultar rosas en móviles y tablets pequeñas */
+        @media (max-width: 1024px) {
+            .rose-garden { display: none !important; }
+        }
+        
+        /* Ajustes para tablets */
+        @media (max-width: 768px) {
+            .nav { padding: 8px 12px; }
+            .nav-logo-img { height: 32px; }
+            .nav-links { gap: 8px; }
+            .nav-link { font-size: 12px; }
+            .nav-btn { padding: 5px 12px; font-size: 12px; }
+            
+            .content { padding-top: 60px; }
+            .container { padding: 0 12px; }
+            section { padding-top: 40px; margin-bottom: 30px; scroll-margin-top: 60px; }
+            .section-title { font-size: 24px; margin-bottom: 16px; }
+            
+            .logo-section { padding: 5px 0 15px 0; }
+            .logo-img { max-width: 260px; width: 75%; }
+            
+            .cine-carousel-section { margin: 10px 0 30px 0; }
+            .cine-carousel-title { font-size: 12px; letter-spacing: 2px; margin-bottom: 15px; }
+            .cine-carousel-container { aspect-ratio: 16/9; border-radius: 20px; transform: rotateX(-5deg) scale(0.95); }
+            .cine-slide-overlay { padding: 30px 15px 20px; left: 5%; right: 5%; }
+            .cine-slide-title { font-size: clamp(18px, 5vw, 32px); letter-spacing: 1px; }
+            .cine-dots { margin-top: 15px; gap: 8px; }
+            .cine-dot { width: 10px; height: 10px; }
+            
+            .ticket-grid { gap: 16px; margin-top: 24px; }
+            .ticket-info { padding: 16px; }
+            .ticket-desc { font-size: 13px; margin-bottom: 16px; }
+            .ticket-btn { padding: 8px 16px; font-size: 13px; }
+            
+            .horarios-title, .llegar-title { font-size: 20px; }
+            .estado-actual { padding: 15px; }
+            .estado-texto { font-size: 18px; }
+            .frase-chilena { padding: 12px 16px; font-size: 14px; }
+            .countdown-horarios { padding: 15px; gap: 10px; }
+            .countdown-num-horarios { font-size: 24px; }
+            .horarios-detalle { padding: 15px; }
+            .horario-item { padding: 10px 0; }
+            .horario-dia .emoji { font-size: 18px; }
+            .horario-hora { font-size: 13px; }
+            .btn-reserva-ahora { padding: 12px; font-size: 14px; }
+            
+            .transporte-tabs { padding: 3px; }
+            .transporte-tab { padding: 10px 5px; font-size: 12px; }
+            .transporte-tab .emoji { font-size: 20px; }
+            .transporte-content { padding: 20px 15px; }
+            .transporte-ruta { padding: 15px; }
+            .ruta-paso { gap: 10px; margin-bottom: 12px; }
+            .paso-numero { width: 30px; height: 30px; font-size: 14px; }
+            .paso-texto strong { font-size: 14px; }
+            .paso-texto span { font-size: 12px; }
+            .paso-tiempo { font-size: 11px; padding: 4px 8px; }
+            .llegar-tip { padding: 12px; }
+            .llegar-tip .emoji { font-size: 24px; }
+            .llegar-tip-texto { font-size: 12px; }
+            .llegar-action { padding: 0 15px 15px; }
+            .btn-como-llegar { padding: 12px; font-size: 14px; }
+            
+            .chat-messages { height: 350px; padding: 12px; }
+            .chat-message { gap: 10px; margin-bottom: 12px; }
+            .chat-avatar { width: 32px; height: 32px; font-size: 16px; }
+            .chat-bubble { padding: 10px 14px; font-size: 13px; max-width: 85%; }
+            .chat-options { margin-left: 42px; gap: 6px; }
+            .chat-option-btn { padding: 6px 12px; font-size: 12px; }
+            .chat-input-area { padding: 10px; }
+            .chat-input { padding: 8px 14px; font-size: 13px; }
+            
+            .action-card { padding: 30px 16px; }
+            .action-icon { font-size: 40px; }
+            .action-btn { padding: 12px 24px; font-size: 16px; }
+            
+            .info-card { padding: 20px; }
+            .info-card p { font-size: 13px; }
+            .map-wrapper { height: 200px; }
+            
+            .footer { padding: 12px 16px; gap: 20px; flex-direction: column; }
+            .footer-text { font-size: 12px; text-align: center; }
+            .footer-dev { flex-direction: column; gap: 8px; text-align: center; }
+            .footer-logo-dev { height: 50px; }
+        }
+        
+        /* Ajustes para móviles pequeños */
+        @media (max-width: 480px) {
+            .nav { padding: 6px 10px; }
+            .nav-logo-img { height: 28px; }
+            .nav-links { gap: 6px; }
+            .nav-link { font-size: 11px; }
+            .nav-btn { padding: 4px 10px; font-size: 11px; border-radius: 15px; }
+            
+            .content { padding-top: 50px; padding-bottom: 30px; }
+            section { padding-top: 30px; margin-bottom: 20px; scroll-margin-top: 50px; }
+            .section-title { font-size: 20px; letter-spacing: 1px; }
+            
+            .logo-img { max-width: 200px; }
+            
+            .cine-carousel-container { aspect-ratio: 4/3; border-radius: 12px; transform: none; }
+            .cine-vignette { background: linear-gradient(to right, rgba(13, 13, 18, 0.8) 0%, rgba(13, 13, 18, 0.4) 5%, transparent 10%, transparent 90%, rgba(13, 13, 18, 0.4) 95%, rgba(13, 13, 18, 0.8) 100%); }
+            .cine-slide-title { font-size: clamp(16px, 6vw, 24px); }
+            .cine-dots { margin-top: 10px; }
+            .cine-dot { width: 8px; height: 8px; }
+            
+            .ticket-grid { gap: 12px; margin-top: 20px; }
+            .ticket-info { padding: 12px; }
+            .ticket-desc { font-size: 12px; line-height: 1.5; }
+            .ticket-btn { padding: 8px 14px; font-size: 12px; }
+            
+            .horarios-header, .llegar-header { padding: 15px; }
+            .horarios-header::after { font-size: 60px; }
+            .horarios-title, .llegar-title { font-size: 18px; }
+            .estado-actual { padding: 12px; gap: 8px; }
+            .estado-indicator { width: 14px; height: 14px; }
+            .estado-texto { font-size: 16px; }
+            .frase-chilena { padding: 10px 12px; font-size: 13px; }
+            .countdown-horarios { padding: 12px; gap: 8px; }
+            .countdown-item { min-width: 40px; }
+            .countdown-num-horarios { font-size: 20px; }
+            .countdown-label-horarios { font-size: 9px; }
+            .countdown-texto { padding-bottom: 12px; font-size: 11px; }
+            .horarios-detalle { padding: 12px; }
+            .horario-item { padding: 8px 0; flex-wrap: wrap; gap: 5px; }
+            .horario-dia { gap: 8px; }
+            .horario-dia .emoji { font-size: 16px; }
+            .horario-dia .texto { font-size: 13px; }
+            .horario-hora { font-size: 12px; }
+            .btn-reserva-ahora { padding: 10px; font-size: 13px; }
+            .btn-reserva-ahora::before, .btn-reserva-ahora::after { display: none; }
+            
+            .transporte-tab { padding: 8px 3px; font-size: 10px; }
+            .transporte-tab .emoji { font-size: 16px; }
+            .transporte-content { padding: 15px 12px; }
+            .transporte-ruta { padding: 12px; }
+            .ruta-paso { flex-wrap: wrap; }
+            .paso-numero { width: 26px; height: 26px; font-size: 12px; }
+            .paso-texto { flex: 1 1 60%; }
+            .paso-tiempo { margin-left: 36px; margin-top: 5px; }
+            .llegar-tip { padding: 10px; flex-wrap: wrap; }
+            .llegar-tip .emoji { font-size: 20px; }
+            .llegar-tip-texto { font-size: 11px; }
+            .btn-como-llegar { padding: 10px; font-size: 13px; }
+            .btn-como-llegar .emoji-left, .btn-como-llegar .emoji-right { display: none; }
+            
+            .chat-messages { height: 300px; padding: 10px; }
+            .chat-bubble { padding: 8px 12px; font-size: 12px; }
+            .chat-options { margin-left: 0; margin-top: 8px; }
+            .chat-option-btn { padding: 5px 10px; font-size: 11px; border-radius: 15px; }
+            
+            .action-card { padding: 24px 12px; }
+            .action-icon { font-size: 36px; margin-bottom: 12px; }
+            .action-btn { padding: 10px 20px; font-size: 14px; }
+            
+            .info-card { padding: 16px; }
+            .info-card h3 { font-size: 18px; }
+            .info-card p { font-size: 12px; line-height: 1.5; }
+            .map-wrapper { height: 180px; border-radius: 12px; }
+            
+            .footer { padding: 10px; }
+            .footer-text { font-size: 11px; }
+            .footer-dev { font-size: 11px; }
+            .footer-logo-dev { height: 40px; }
+        }
+        
+        /* Ajustes para móviles muy pequeños */
+        @media (max-width: 360px) {
+            .nav-link { display: none; }
+            .nav-links { gap: 4px; }
+            .nav-btn { padding: 4px 8px; font-size: 10px; }
+            
+            .section-title { font-size: 18px; }
+            .logo-img { max-width: 170px; }
+            
+            .horario-dia .texto { font-size: 12px; }
+            .horario-hora { font-size: 11px; }
+            
+            .transporte-tab { font-size: 9px; padding: 6px 2px; }
+            .transporte-tab .emoji { font-size: 14px; }
+            
+            .chat-messages { height: 250px; }
+        }
+        
+        /* Orientación landscape en móviles */
+        @media (max-height: 500px) and (orientation: landscape) {
+            .rose-garden { display: none !important; }
+            .nav { padding: 5px 10px; position: absolute; }
+            .nav-logo-img { height: 24px; }
+            .content { padding-top: 40px; }
+            .logo-section { padding: 5px 0; }
+            .logo-img { max-width: 150px; }
+            .cine-carousel-section { margin: 5px 0 15px 0; }
+            .section-title { margin-bottom: 12px; }
+        }
+        
+        /* Soporte para pantallas grandes (desktops ampliados) */
+        @media (min-width: 1400px) {
+            .container { max-width: 1000px; }
+            .nav-content { max-width: 1000px; }
+            .section-title { font-size: 40px; }
+            .logo-img { max-width: 400px; }
+            .cine-carousel-container { aspect-ratio: 21/9; }
+        }
         @keyframes shine {
             0%, 100% { left: -100%; }
             50% { left: 200%; }
