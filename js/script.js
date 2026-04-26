@@ -20,6 +20,8 @@ import {
   nextTestimonialSlide, prevTestimonialSlide
 } from './carousel.js';
 
+import { submitReservation, submitNewsletter } from './api.js';
+
 /* ── DOM Ready ── */
 document.addEventListener('DOMContentLoaded', () => {
   initNav();
@@ -304,7 +306,7 @@ function initReservationForm() {
   const success = document.getElementById('formSuccess');
   if (!form) return;
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     if (!validateReservationForm(form)) return;
 
@@ -312,12 +314,35 @@ function initReservationForm() {
     btn.textContent = 'Enviando...';
     btn.disabled    = true;
 
-    // Simulate async submit
-    setTimeout(() => {
-      form.style.display = 'none';
-      if (success) success.style.display = 'block';
-      showToast('¡Reserva enviada! Te contactaremos pronto 🎉', 'success');
-    }, 1400);
+    const data = {
+      nombre:   form.querySelector('#resName').value.trim(),
+      email:    form.querySelector('#resEmail').value.trim(),
+      telefono: form.querySelector('#resPhone').value.trim(),
+      personas: Number(form.querySelector('#resPeople').value),
+      tipo:     form.querySelector('#resType').value,
+      fecha:    form.querySelector('#resDate').value,
+      mensaje:  (form.querySelector('#resMsg') || {}).value || '',
+    };
+
+    try {
+      const result = await submitReservation(data);
+      if (result.success) {
+        form.style.display = 'none';
+        if (success) success.style.display = 'block';
+        showToast('¡Reserva enviada! Te contactaremos pronto 🎉', 'success');
+      } else {
+        const msg = result.errors
+          ? result.errors.map(e => e.message).join(' ')
+          : (result.message || 'Error al enviar la reserva.');
+        showToast(msg, 'error');
+        btn.textContent = '🎉 Confirmar Reserva';
+        btn.disabled    = false;
+      }
+    } catch {
+      showToast('Sin conexión con el servidor. Intenta más tarde.', 'error');
+      btn.textContent = '🎉 Confirmar Reserva';
+      btn.disabled    = false;
+    }
   });
 
   // Real-time validation
@@ -367,7 +392,7 @@ function initNewsletter() {
   const form = document.getElementById('newsletterForm');
   if (!form) return;
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     const input = form.querySelector('.newsletter-input');
     const email = input ? input.value.trim() : '';
@@ -378,13 +403,29 @@ function initNewsletter() {
     }
 
     const btn = form.querySelector('.newsletter-btn');
-    btn.textContent = '¡Suscrito! 🎉';
+    btn.textContent = 'Enviando...';
     btn.disabled    = true;
-    input.value     = '';
-    showToast('¡Te suscribiste! Recibirás los mejores eventos 🎸', 'success');
+
+    try {
+      const result = await submitNewsletter(email);
+      if (result.success) {
+        input.value     = '';
+        btn.textContent = '¡Suscrito! 🎉';
+        showToast(result.message || '¡Te suscribiste! Recibirás los mejores eventos 🎸', 'success');
+      } else {
+        showToast(result.message || 'Error al suscribirse.', 'error');
+        btn.textContent = '🔔 Suscribirse';
+        btn.disabled    = false;
+      }
+    } catch {
+      showToast('Sin conexión con el servidor. Intenta más tarde.', 'error');
+      btn.textContent = '🔔 Suscribirse';
+      btn.disabled    = false;
+      return;
+    }
 
     setTimeout(() => {
-      btn.textContent = 'Suscribirse';
+      btn.textContent = '🔔 Suscribirse';
       btn.disabled    = false;
     }, 3000);
   });
