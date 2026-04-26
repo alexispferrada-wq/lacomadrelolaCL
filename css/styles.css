@@ -1,0 +1,843 @@
+/* ================= BASE Y FONDO ================= */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
+html { min-height: 100vh; }
+body { 
+    min-height: 100vh; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #0d0d12; color: white; overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; min-height: 100vh; z-index: 0; pointer-events: none; background: #0d0d12; }
+.bg-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s ease-in-out; }
+.bg-slide.active { opacity: 1; }
+.bg-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.88); z-index: 1; }
+
+@font-face {
+    font-family: 'BudmoJiggler';
+    src: url('../fonts/BudmoJiggler.woff2') format('woff2'), url('../fonts/BudmoJiggler.woff') format('woff');
+    font-weight: normal; font-style: normal; font-display: swap;
+}
+
+/* ================= ROSAS DINÁMICAS ================= */
+.rose-garden { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; overflow: visible; }
+.rose { position: absolute; opacity: 0; filter: drop-shadow(0 0 8px rgba(255, 107, 157, 0.6)); animation: rose-fall linear infinite; will-change: transform, opacity; }
+
+@keyframes rose-fall {
+    0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
+    5% { opacity: 0.9; }
+    25% { transform: translateY(25vh) translateX(15px) rotate(90deg); }
+    50% { transform: translateY(50vh) translateX(-10px) rotate(180deg); }
+    75% { transform: translateY(75vh) translateX(20px) rotate(270deg); opacity: 0.9; }
+    95% { opacity: 0.6; }
+    100% { transform: translateY(110vh) translateX(0) rotate(360deg); opacity: 0; }
+}
+
+.petal { position: absolute; background: radial-gradient(circle, #ff6b9d 0%, #d4547b 100%); border-radius: 50% 0 50% 50%; opacity: 0; animation: petal-fall linear infinite; filter: blur(0.5px); }
+
+@keyframes petal-fall {
+    0% { transform: translateY(-5vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.7; }
+    90% { opacity: 0.5; }
+    100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+}
+
+/* ================= NAVEGACIÓN ================= */
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(0,0,0,0.95); border-bottom: 2px solid #E8913A; padding: 10px 16px; backdrop-filter: blur(10px); }
+.nav-content { max-width: 900px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.nav-logo { display: flex; align-items: center; text-decoration: none; }
+.nav-logo-img { height: 36px; width: auto; filter: drop-shadow(0 0 10px rgba(232,145,58,0.5)); }
+.nav-links { display: flex; align-items: center; gap: 12px; }
+.nav-link { color: #ccc; text-decoration: none; font-size: 13px; }
+.nav-link:hover { color: #E8913A; }
+.nav-btn { background: #E8913A; color: black; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 13px; }
+
+/* ================= CONTENEDORES Y SECCIONES ================= */
+.content { 
+    position: relative; z-index: 50; padding-top: 70px; padding-bottom: 40px;
+    flex-grow: 1; /* Hace que el contenido principal crezca para empujar el footer hacia abajo */
+}
+.container { max-width: 800px; margin: 0 auto; padding: 0 16px; }
+section { 
+    padding-top: 60px; margin-bottom: 40px; 
+    scroll-margin-top: 70px; /* Espacio para el menú fijo al navegar con anclas (#) */
+}
+.section-title { font-family: 'Righteous', cursive; font-size: 32px; text-align: center; color: #E8913A; margin-bottom: 24px; text-shadow: 0 0 10px rgba(232,145,58,0.3), 0 0 20px rgba(232,145,58,0.2); letter-spacing: 2px; }
+
+#lola-ticket .section-title { font-family: 'BudmoJiggler', 'Righteous', cursive; color: #ffc37e; text-shadow: 0 0 5px rgba(255,255,255,0.7), 0 0 10px #E8913A, 0 0 20px #E8913A, 0 0 40px #E8913A, 0 0 70px #E8913A; }
+
+/* ================= INICIO (LOGO) ================= */
+.logo-section { text-align: center; padding: 10px 0 20px 0; margin-top: -20px; }
+.logo-img { max-width: 320px; width: 70%; height: auto; filter: drop-shadow(0 0 30px rgba(232,145,58,0.4)); animation: floatLogo 6s ease-in-out infinite; }
+@keyframes floatLogo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+
+/* ================= CARRUSEL ================= */
+.cine-carousel-section { margin: 20px 0 50px 0; position: relative; z-index: 50; width: 100%; }
+.cine-carousel-title { font-family: 'Righteous', cursive; font-size: 14px; text-align: center; color: #E8913A; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 4px; opacity: 0.9; }
+.cine-carousel-wrapper { position: relative; width: 100%; perspective: 1500px; }
+.cine-carousel-wrapper:hover .cine-carousel-container { transform: rotateX(0deg) scale(1); box-shadow: 0 20px 60px -10px rgba(0,0,0,0.8); }
+.cine-carousel-container { position: relative; width: 100%; overflow: hidden; background: #000; aspect-ratio: 21/9; border-top: 2px solid rgba(232,145,58,0.5); border-bottom: 2px solid rgba(232,145,58,0.5); border-radius: 40px; transform: rotateX(-8deg) scale(0.9); box-shadow: 0 40px 80px -20px rgba(0,0,0,0.6); transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.6s ease; }
+.cine-vignette { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 55; background: linear-gradient(to right, rgba(13, 13, 18, 0.95) 0%, rgba(13, 13, 18, 0.7) 8%, rgba(13, 13, 18, 0.3) 15%, transparent 20%, transparent 80%, rgba(13, 13, 18, 0.3) 85%, rgba(13, 13, 18, 0.7) 92%, rgba(13, 13, 18, 0.95) 100%); }
+.cine-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0; transition: opacity 1.5s ease-in-out, transform 8s ease-out; transform: scale(1.05); }
+.cine-slide.active { opacity: 1; transform: scale(1); }
+.cine-slide-overlay { position: absolute; bottom: 0; left: 10%; right: 10%; padding: 60px 30px 30px; background: linear-gradient(transparent, rgba(0,0,0,0.85)); transform: translateY(20px); opacity: 0; transition: all 0.6s ease 0.3s; text-align: center; z-index: 70; }
+.cine-slide.active .cine-slide-overlay { transform: translateY(0); opacity: 1; }
+.cine-slide-title { font-family: 'Righteous', cursive; font-size: clamp(22px, 4vw, 48px); color: #E8913A; text-shadow: 0 3px 30px rgba(0,0,0,1), 0 0 30px rgba(232,145,58,0.6); letter-spacing: 3px; }
+.cine-dots { display: flex; justify-content: center; gap: 12px; margin-top: 25px; }
+.cine-dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(232,145,58,0.15); cursor: pointer; transition: all 0.3s; border: 2px solid rgba(232,145,58,0.5); }
+.cine-dot.active { background: #E8913A; transform: scale(1.3); box-shadow: 0 0 20px #E8913A; border-color: #E8913A; }
+
+/* ================= LOLA TICKET ================= */
+.ticket-grid { display: grid; grid-template-columns: 1fr; gap: 24px; margin-top: 32px; }
+@media (min-width: 768px) { .ticket-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; } }
+.ticket-card { background: rgba(17,17,17,0.9); border: 1px solid rgba(232,145,58,0.3); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.3s ease; }
+.ticket-card:hover { transform: translateY(-5px); border-color: rgba(232,145,58,0.6); }
+.ticket-img { width: 100%; height: auto; display: block; }
+.ticket-info { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
+.ticket-desc { color: #bbb; font-size: 14px; line-height: 1.6; flex-grow: 1; margin-bottom: 20px; }
+.ticket-btn { background: #E8913A; color: black; padding: 10px 20px; border-radius: 24px; text-decoration: none; font-weight: bold; font-size: 14px; text-align: center; transition: background-color 0.3s; }
+.ticket-btn:hover { background: #ffac5c; }
+
+/* ================= CARTA Y BOTONES GRANDES ================= */
+.action-card { background: rgba(17,17,17,0.9); border: 2px dashed rgba(232,145,58,0.5); border-radius: 16px; padding: 40px 20px; text-align: center; transition: all 0.3s ease; }
+.action-card:hover { border-style: solid; box-shadow: 0 0 20px rgba(232,145,58,0.2); transform: translateY(-2px); }
+.action-icon { font-size: 48px; margin-bottom: 16px; display: block; }
+.action-btn { display: inline-block; background: linear-gradient(135deg, #E8913A, #ffac5c); color: #000; padding: 15px 30px; border-radius: 30px; font-weight: 700; font-size: 18px; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(232,145,58,0.4); transition: transform 0.2s; }
+.action-btn:active { transform: scale(0.95); }
+
+/* ================= RESERVAS (CHAT) ================= */
+.chat-box { background: rgba(17,17,17,0.95); border: 2px solid rgba(232,145,58,0.5); border-radius: 20px; overflow: hidden; margin-bottom: 24px; }
+.chat-messages { height: 400px; overflow-y: auto; padding: 16px; }
+.chat-message { display: flex; gap: 12px; margin-bottom: 16px; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.chat-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, #E8913A, #D4547B); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.chat-avatar.user { background: linear-gradient(135deg, #4ECDC4, #44A08D); }
+.chat-bubble { background: rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 16px; max-width: 80%; font-size: 14px; line-height: 1.5; }
+.chat-message.user { flex-direction: row-reverse; }
+.chat-message.user .chat-bubble { background: rgba(232,145,58,0.2); }
+.chat-options { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; margin-left: 48px; }
+.chat-option-btn { background: rgba(232,145,58,0.2); border: 1px solid rgba(232,145,58,0.5); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+.chat-input-area { display: flex; gap: 8px; padding: 12px; border-top: 1px solid rgba(232,145,58,0.3); background: rgba(0,0,0,0.3); }
+.chat-input { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(232,145,58,0.3); border-radius: 20px; padding: 10px 16px; color: white; font-size: 14px; outline: none; }
+.chat-send-btn { width: 40px; height: 40px; background: #E8913A; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+/* ================= UBICACIÓN Y CONTACTO ================= */
+.info-grid { display: grid; gap: 16px; margin-bottom: 32px; }
+/* @media (min-width: 640px) { .info-grid { grid-template-columns: repeat(2, 1fr); } } */ /* Se deja en una columna para mejor flujo */
+.info-card { background: rgba(17,17,17,0.9); border: 1px solid rgba(232,145,58,0.3); border-radius: 16px; padding: 24px; text-align: center; display: flex; flex-direction: column; justify-content: center;}
+.info-card h3 { color: #E8913A; margin-bottom: 12px; font-family: 'Righteous', cursive; }
+.info-card p { color: #ccc; font-size: 14px; line-height: 1.6; margin-bottom: 10px;}
+.map-wrapper { width: 100%; height: 250px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(232,145,58,0.3); }
+.map-wrapper iframe { width: 100%; height: 100%; border: none; }
+
+/* FOOTER & WHATSAPP */
+.footer { 
+    position: relative; /* Necesario para que z-index funcione */
+    z-index: 10;        /* Eleva el footer por encima del fondo (que tiene z-index: 0) */
+    background: rgba(0,0,0,0.95); 
+    border-top: 2px solid #E8913A; 
+    padding: 16px 24px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 40px;
+}
+.footer-text { color: #bbb; font-size: 13px; }
+.footer-dev { 
+    color: #aaa; 
+    font-size: 13px; 
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+.footer-dev a { display: inline-block; line-height: 0; }
+.footer-logo-dev { height: 70px; transition: filter 0.3s; }
+.footer-dev a:hover .footer-logo-dev { filter: brightness(1.3); }
+
+/* ========== TARJETA DE HORARIOS INTERACTIVA CHILENA ========== */
+.horarios-card {
+    background: linear-gradient(145deg, #1a1a20 0%, #0d0d12 100%);
+    border: 2px solid #E8913A;
+    border-radius: 20px;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.horarios-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(232, 145, 58, 0.3), 0 0 60px rgba(232, 145, 58, 0.1);
+    border-color: #ff9f4a;
+}
+.horarios-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(232, 145, 58, 0.1), transparent);
+    transition: left 0.6s;
+}
+.horarios-card:hover::before {
+    left: 100%;
+}
+
+/* Header con estado */
+.horarios-header {
+    background: linear-gradient(135deg, #E8913A 0%, #D4547B 100%);
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.horarios-header::after {
+    content: '🌮';
+    position: absolute;
+    font-size: 80px;
+    opacity: 0.1;
+    right: -10px;
+    top: -20px;
+    animation: floatTaco 3s ease-in-out infinite;
+}
+@keyframes floatTaco {
+    0%, 100% { transform: rotate(-10deg) translateY(0); }
+    50% { transform: rotate(10deg) translateY(-10px); }
+}
+.horarios-title {
+    font-family: 'Righteous', cursive;
+    font-size: 24px;
+    color: #0d0d12;
+    margin: 0;
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+}
+
+/* Estado actual */
+.estado-actual {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px;
+    background: rgba(0,0,0,0.3);
+    border-bottom: 1px dashed rgba(232, 145, 58, 0.3);
+}
+.estado-indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    box-shadow: 0 0 20px currentColor;
+}
+.estado-indicator.abierto {
+    background: #00FF7F;
+    color: #00FF7F;
+}
+.estado-indicator.cerrado {
+    background: #FF4757;
+    color: #FF4757;
+}
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.8; }
+}
+.estado-texto {
+    font-family: 'Righteous', cursive;
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+.estado-texto.abierto { color: #00FF7F; text-shadow: 0 0 20px rgba(0, 255, 127, 0.5); }
+.estado-texto.cerrado { color: #FF4757; text-shadow: 0 0 20px rgba(255, 71, 87, 0.5); }
+
+/* Frase chilena */
+.frase-chilena {
+    text-align: center;
+    padding: 15px 20px;
+    font-size: 15px;
+    color: #ccc;
+    font-style: italic;
+    background: rgba(232, 145, 58, 0.05);
+}
+.frase-chilena span {
+    color: #E8913A;
+    font-weight: bold;
+}
+
+/* Countdown para apertura/cierre */
+.countdown-horarios {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 20px;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,0.3));
+}
+.countdown-item {
+    text-align: center;
+    min-width: 50px;
+}
+.countdown-num-horarios {
+    font-family: 'Righteous', cursive;
+    font-size: 28px;
+    color: #E8913A;
+    display: block;
+    line-height: 1;
+    text-shadow: 0 0 10px rgba(232, 145, 58, 0.5);
+}
+.countdown-label-horarios {
+    font-size: 10px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.countdown-texto {
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+    padding-bottom: 15px;
+}
+
+/* Horarios detalle */
+.horarios-detalle {
+    padding: 20px;
+}
+.horario-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.3s;
+}
+.horario-item:hover {
+    padding-left: 10px;
+    background: rgba(232, 145, 58, 0.05);
+    border-radius: 8px;
+}
+.horario-item:last-child {
+    border-bottom: none;
+}
+.horario-dia {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
+.horario-dia .emoji {
+    font-size: 20px;
+}
+.horario-dia .texto {
+    color: #fff;
+}
+.horario-dia .texto.hoy {
+    color: #E8913A;
+}
+.horario-hora {
+    font-family: 'Righteous', cursive;
+    color: #E8913A;
+    font-size: 14px;
+}
+
+/* Botón de acción */
+.horario-action {
+    padding: 0 20px 20px;
+}
+.btn-reserva-ahora {
+    width: 100%;
+    background: linear-gradient(135deg, #E8913A 0%, #D4547B 100%);
+    border: none;
+    padding: 15px;
+    border-radius: 12px;
+    color: #0d0d12;
+    font-family: 'Righteous', cursive;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+.btn-reserva-ahora:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(232, 145, 58, 0.4);
+}
+.btn-reserva-ahora::before {
+    content: '🔥';
+    position: absolute;
+    left: 15px;
+    animation: flame 0.5s ease-in-out infinite alternate;
+}
+@keyframes flame {
+    from { transform: scale(1); }
+    to { transform: scale(1.2); }
+}
+.btn-reserva-ahora::after {
+    content: '🍻';
+    position: absolute;
+    right: 15px;
+    animation: chela 0.7s ease-in-out infinite alternate;
+}
+@keyframes chela {
+    from { transform: translateY(0) rotate(-10deg); }
+    to { transform: translateY(-5px) rotate(10deg); }
+}
+
+/* ========== TARJETA CÓMO LLEGAR INTERACTIVA CHILENA ========== */
+.llegar-card {
+    background: linear-gradient(145deg, #1a1a20 0%, #0d0d12 100%);
+    border: 2px solid #E8913A;
+    border-radius: 20px;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.llegar-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(232, 145, 58, 0.3), 0 0 60px rgba(232, 145, 58, 0.1);
+    border-color: #ff9f4a;
+}
+
+.llegar-header {
+    background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+    padding: 20px;
+    text-align: center;
+    position: relative;
+}
+.llegar-header::after {
+    content: '🗺️';
+    position: absolute;
+    font-size: 60px;
+    opacity: 0.15;
+    right: 10px;
+    top: -5px;
+    animation: bounceMap 2s ease-in-out infinite;
+}
+@keyframes bounceMap {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-10px) rotate(5deg); }
+}
+.llegar-title {
+    font-family: 'Righteous', cursive;
+    font-size: 24px;
+    color: #0d0d12;
+    margin: 0;
+    text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+}
+
+/* Selector de transporte tipo tabs */
+.transporte-tabs {
+    display: flex;
+    background: rgba(0,0,0,0.3);
+    padding: 5px;
+    gap: 5px;
+}
+.transporte-tab {
+    flex: 1;
+    padding: 15px 10px;
+    background: transparent;
+    border: none;
+    color: #888;
+    font-family: 'Righteous', cursive;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+.transporte-tab .emoji {
+    font-size: 24px;
+    transition: transform 0.3s;
+}
+.transporte-tab:hover {
+    color: #ccc;
+    background: rgba(255,255,255,0.05);
+}
+.transporte-tab:hover .emoji {
+    transform: scale(1.2);
+}
+.transporte-tab.active {
+    background: linear-gradient(135deg, #4ECDC4, #44A08D);
+    color: #0d0d12;
+    box-shadow: 0 5px 20px rgba(78, 205, 196, 0.4);
+}
+.transporte-tab.active .emoji {
+    animation: wiggle 0.5s ease-in-out infinite;
+}
+@keyframes wiggle {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+}
+
+/* Contenido de cada transporte */
+.transporte-content {
+    padding: 25px;
+    min-height: 200px;
+}
+.transporte-panel {
+    display: none;
+    animation: fadeSlide 0.4s ease;
+}
+.transporte-panel.active {
+    display: block;
+}
+@keyframes fadeSlide {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+}
+
+.transporte-ruta {
+    background: rgba(78, 205, 196, 0.1);
+    border-left: 4px solid #4ECDC4;
+    border-radius: 0 12px 12px 0;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+.ruta-paso {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 15px;
+    position: relative;
+}
+.ruta-paso:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 18px;
+    top: 35px;
+    width: 2px;
+    height: calc(100% + 5px);
+    background: linear-gradient(to bottom, #4ECDC4, transparent);
+}
+.paso-numero {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #4ECDC4, #44A08D);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Righteous', cursive;
+    font-size: 16px;
+    color: #0d0d12;
+    flex-shrink: 0;
+    z-index: 1;
+}
+.paso-texto {
+    flex: 1;
+    padding-top: 8px;
+}
+.paso-texto strong {
+    color: #4ECDC4;
+    display: block;
+    margin-bottom: 3px;
+}
+.paso-texto span {
+    color: #aaa;
+    font-size: 13px;
+}
+.paso-tiempo {
+    background: rgba(78, 205, 196, 0.2);
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #4ECDC4;
+    white-space: nowrap;
+}
+
+/* Info extra chilena */
+.llegar-tip {
+    background: linear-gradient(135deg, rgba(232, 145, 58, 0.1), rgba(212, 84, 123, 0.1));
+    border: 1px dashed rgba(232, 145, 58, 0.4);
+    border-radius: 12px;
+    padding: 15px;
+    margin-top: 15px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+.llegar-tip .emoji {
+    font-size: 28px;
+    animation: bounceTip 1s ease-in-out infinite;
+}
+@keyframes bounceTip {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+.llegar-tip-texto {
+    font-size: 13px;
+    color: #ccc;
+    line-height: 1.5;
+}
+.llegar-tip-texto strong {
+    color: #E8913A;
+}
+
+/* Botón de ruta */
+.llegar-action {
+    padding: 0 25px 25px;
+}
+.btn-como-llegar {
+    width: 100%;
+    background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+    border: none;
+    padding: 15px;
+    border-radius: 12px;
+    color: #0d0d12;
+    font-family: 'Righteous', cursive;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+}
+.btn-como-llegar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 30px rgba(78, 205, 196, 0.4);
+}
+.btn-como-llegar .emoji-left {
+    animation: moveLeft 1s ease-in-out infinite alternate;
+}
+@keyframes moveLeft {
+    from { transform: translateX(0); }
+    to { transform: translateX(-5px); }
+}
+.btn-como-llegar .emoji-right {
+    animation: moveRight 1s ease-in-out infinite alternate;
+}
+@keyframes moveRight {
+    from { transform: translateX(0); }
+    to { transform: translateX(5px); }
+}
+
+/* Efecto de destello */
+.shine-effect {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transform: skewX(-25deg);
+    animation: shine 3s infinite;
+}
+
+/* ================= MEDIA QUERIES - RESPONSIVE ================= */
+/* Ocultar rosas en móviles y tablets pequeñas */
+@media (max-width: 1024px) {
+    .rose-garden { display: none !important; }
+}
+
+/* Ajustes para tablets */
+@media (max-width: 768px) {
+    .nav { padding: 8px 12px; }
+    .nav-logo-img { height: 32px; }
+    .nav-links { gap: 8px; }
+    .nav-link { font-size: 12px; }
+    .nav-btn { padding: 5px 12px; font-size: 12px; }
+    
+    .content { padding-top: 60px; }
+    .container { padding: 0 12px; }
+    section { padding-top: 40px; margin-bottom: 30px; scroll-margin-top: 60px; }
+    .section-title { font-size: 24px; margin-bottom: 16px; }
+    
+    .logo-section { padding: 5px 0 15px 0; }
+    .logo-img { max-width: 260px; width: 75%; }
+    
+    .cine-carousel-section { margin: 10px 0 30px 0; }
+    .cine-carousel-title { font-size: 12px; letter-spacing: 2px; margin-bottom: 15px; }
+    .cine-carousel-container { aspect-ratio: 16/9; border-radius: 20px; transform: rotateX(-5deg) scale(0.95); }
+    .cine-slide-overlay { padding: 30px 15px 20px; left: 5%; right: 5%; }
+    .cine-slide-title { font-size: clamp(18px, 5vw, 32px); letter-spacing: 1px; }
+    .cine-dots { margin-top: 15px; gap: 8px; }
+    .cine-dot { width: 10px; height: 10px; }
+    
+    .ticket-grid { gap: 16px; margin-top: 24px; }
+    .ticket-info { padding: 16px; }
+    .ticket-desc { font-size: 13px; margin-bottom: 16px; }
+    .ticket-btn { padding: 8px 16px; font-size: 13px; }
+    
+    .horarios-title, .llegar-title { font-size: 20px; }
+    .estado-actual { padding: 15px; }
+    .estado-texto { font-size: 18px; }
+    .frase-chilena { padding: 12px 16px; font-size: 14px; }
+    .countdown-horarios { padding: 15px; gap: 10px; }
+    .countdown-num-horarios { font-size: 24px; }
+    .horarios-detalle { padding: 15px; }
+    .horario-item { padding: 10px 0; }
+    .horario-dia .emoji { font-size: 18px; }
+    .horario-hora { font-size: 13px; }
+    .btn-reserva-ahora { padding: 12px; font-size: 14px; }
+    
+    .transporte-tabs { padding: 3px; }
+    .transporte-tab { padding: 10px 5px; font-size: 12px; }
+    .transporte-tab .emoji { font-size: 20px; }
+    .transporte-content { padding: 20px 15px; }
+    .transporte-ruta { padding: 15px; }
+    .ruta-paso { gap: 10px; margin-bottom: 12px; }
+    .paso-numero { width: 30px; height: 30px; font-size: 14px; }
+    .paso-texto strong { font-size: 14px; }
+    .paso-texto span { font-size: 12px; }
+    .paso-tiempo { font-size: 11px; padding: 4px 8px; }
+    .llegar-tip { padding: 12px; }
+    .llegar-tip .emoji { font-size: 24px; }
+    .llegar-tip-texto { font-size: 12px; }
+    .llegar-action { padding: 0 15px 15px; }
+    .btn-como-llegar { padding: 12px; font-size: 14px; }
+    
+    .chat-messages { height: 350px; padding: 12px; }
+    .chat-message { gap: 10px; margin-bottom: 12px; }
+    .chat-avatar { width: 32px; height: 32px; font-size: 16px; }
+    .chat-bubble { padding: 10px 14px; font-size: 13px; max-width: 85%; }
+    .chat-options { margin-left: 42px; gap: 6px; }
+    .chat-option-btn { padding: 6px 12px; font-size: 12px; }
+    .chat-input-area { padding: 10px; }
+    .chat-input { padding: 8px 14px; font-size: 13px; }
+    
+    .action-card { padding: 30px 16px; }
+    .action-icon { font-size: 40px; }
+    .action-btn { padding: 12px 24px; font-size: 16px; }
+    
+    .info-card { padding: 20px; }
+    .info-card p { font-size: 13px; }
+    .map-wrapper { height: 200px; }
+    
+    .footer { padding: 12px 16px; gap: 20px; flex-direction: column; }
+    .footer-text { font-size: 12px; text-align: center; }
+    .footer-dev { flex-direction: column; gap: 8px; text-align: center; }
+    .footer-logo-dev { height: 50px; }
+}
+
+/* Ajustes para móviles pequeños */
+@media (max-width: 480px) {
+    .nav { padding: 6px 10px; }
+    .nav-logo-img { height: 28px; }
+    .nav-links { gap: 6px; }
+    .nav-link { font-size: 11px; }
+    .nav-btn { padding: 4px 10px; font-size: 11px; border-radius: 15px; }
+    
+    .content { padding-top: 50px; padding-bottom: 30px; }
+    section { padding-top: 30px; margin-bottom: 20px; scroll-margin-top: 50px; }
+    .section-title { font-size: 20px; letter-spacing: 1px; }
+    
+    .logo-img { max-width: 200px; }
+    
+    .cine-carousel-container { aspect-ratio: 4/3; border-radius: 12px; transform: none; }
+    .cine-vignette { background: linear-gradient(to right, rgba(13, 13, 18, 0.8) 0%, rgba(13, 13, 18, 0.4) 5%, transparent 10%, transparent 90%, rgba(13, 13, 18, 0.4) 95%, rgba(13, 13, 18, 0.8) 100%); }
+    .cine-slide-title { font-size: clamp(16px, 6vw, 24px); }
+    .cine-dots { margin-top: 10px; }
+    .cine-dot { width: 8px; height: 8px; }
+    
+    .ticket-grid { gap: 12px; margin-top: 20px; }
+    .ticket-info { padding: 12px; }
+    .ticket-desc { font-size: 12px; line-height: 1.5; }
+    .ticket-btn { padding: 8px 14px; font-size: 12px; }
+    
+    .horarios-header, .llegar-header { padding: 15px; }
+    .horarios-header::after { font-size: 60px; }
+    .horarios-title, .llegar-title { font-size: 18px; }
+    .estado-actual { padding: 12px; gap: 8px; }
+    .estado-indicator { width: 14px; height: 14px; }
+    .estado-texto { font-size: 16px; }
+    .frase-chilena { padding: 10px 12px; font-size: 13px; }
+    .countdown-horarios { padding: 12px; gap: 8px; }
+    .countdown-item { min-width: 40px; }
+    .countdown-num-horarios { font-size: 20px; }
+    .countdown-label-horarios { font-size: 9px; }
+    .countdown-texto { padding-bottom: 12px; font-size: 11px; }
+    .horarios-detalle { padding: 12px; }
+    .horario-item { padding: 8px 0; flex-wrap: wrap; gap: 5px; }
+    .horario-dia { gap: 8px; }
+    .horario-dia .emoji { font-size: 16px; }
+    .horario-dia .texto { font-size: 13px; }
+    .horario-hora { font-size: 12px; }
+    .btn-reserva-ahora { padding: 10px; font-size: 13px; }
+    .btn-reserva-ahora::before, .btn-reserva-ahora::after { display: none; }
+    
+    .transporte-tab { padding: 8px 3px; font-size: 10px; }
+    .transporte-tab .emoji { font-size: 16px; }
+    .transporte-content { padding: 15px 12px; }
+    .transporte-ruta { padding: 12px; }
+    .ruta-paso { flex-wrap: wrap; }
+    .paso-numero { width: 26px; height: 26px; font-size: 12px; }
+    .paso-texto { flex: 1 1 60%; }
+    .paso-tiempo { margin-left: 36px; margin-top: 5px; }
+    .llegar-tip { padding: 10px; flex-wrap: wrap; }
+    .llegar-tip .emoji { font-size: 20px; }
+    .llegar-tip-texto { font-size: 11px; }
+    .btn-como-llegar { padding: 10px; font-size: 13px; }
+    .btn-como-llegar .emoji-left, .btn-como-llegar .emoji-right { display: none; }
+    
+    .chat-messages { height: 300px; padding: 10px; }
+    .chat-bubble { padding: 8px 12px; font-size: 12px; }
+    .chat-options { margin-left: 0; margin-top: 8px; }
+    .chat-option-btn { padding: 5px 10px; font-size: 11px; border-radius: 15px; }
+    
+    .action-card { padding: 24px 12px; }
+    .action-icon { font-size: 36px; margin-bottom: 12px; }
+    .action-btn { padding: 10px 20px; font-size: 14px; }
+    
+    .info-card { padding: 16px; }
+    .info-card h3 { font-size: 18px; }
+    .info-card p { font-size: 12px; line-height: 1.5; }
+    .map-wrapper { height: 180px; border-radius: 12px; }
+    
+    .footer { padding: 10px; }
+    .footer-text { font-size: 11px; }
+    .footer-dev { font-size: 11px; }
+    .footer-logo-dev { height: 40px; }
+}
+
+/* Ajustes para móviles muy pequeños */
+@media (max-width: 360px) {
+    .nav-link { display: none; }
+    .nav-links { gap: 4px; }
+    .nav-btn { padding: 4px 8px; font-size: 10px; }
+    
+    .section-title { font-size: 18px; }
+    .logo-img { max-width: 170px; }
+    
+    .horario-dia .texto { font-size: 12px; }
+    .horario-hora { font-size: 11px; }
+    
+    .transporte-tab { font-size: 9px; padding: 6px 2px; }
+    .transporte-tab .emoji { font-size: 14px; }
+    
+    .chat-messages { height: 250px; }
+}
+
+/* Orientación landscape en móviles */
+@media (max-height: 500px) and (orientation: landscape) {
+    .rose-garden { display: none !important; }
+    .nav { padding: 5px 10px; position: absolute; }
+    .nav-logo-img { height: 24px; }
+    .content { padding-top: 40px; }
+    .logo-section { padding: 5px 0; }
+    .logo-img { max-width: 150px; }
+    .cine-carousel-section { margin: 5px 0 15px 0; }
+    .section-title { margin-bottom: 12px; }
+}
+
+/* Soporte para pantallas grandes (desktops ampliados) */
+@media (min-width: 1400px) {
+    .container { max-width: 1000px; }
+    .nav-content { max-width: 1000px; }
+    .section-title { font-size: 40px; }
+    .logo-img { max-width: 400px; }
+    .cine-carousel-container { aspect-ratio: 21/9; }
+}
+@keyframes shine {
+    0%, 100% { left: -100%; }
+    50% { left: 200%; }
+}

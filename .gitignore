@@ -1,0 +1,25 @@
+# Dependencias (no aplica por ahora, pero útil para el futuro)
+node_modules/
+vendor/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Variables de entorno
+.env
+.env.local
+
+# Build artifacts
+dist/
+build/
