@@ -57,6 +57,17 @@ let reservationData = { tipo: '', personas: '', fecha: '' };
 let currentStep = 1;
 
 /**
+ * Escapa caracteres HTML para prevenir inyección de código (XSS)
+ * @param {string} str - Texto a escapar
+ * @returns {string} Texto con caracteres HTML escapados
+ */
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+/**
  * Maneja la selección de una opción en el chat
  * @param {number} step - Paso actual del chat
  * @param {string} value - Valor de la opción elegida
@@ -71,11 +82,11 @@ function selectOption(step, value, label) {
 
 /**
  * Agrega un mensaje del usuario al chat
- * @param {string} text - Texto del mensaje
+ * @param {string} text - Texto del mensaje (se escapa para prevenir XSS)
  */
 function addUserMessage(text) {
     const container = document.getElementById('chatMessages');
-    container.innerHTML += `<div class="chat-message user"><div class="chat-avatar user" aria-hidden="true">😊</div><div class="chat-bubble">${text}</div></div>`;
+    container.innerHTML += `<div class="chat-message user"><div class="chat-avatar user" aria-hidden="true">😊</div><div class="chat-bubble">${escapeHtml(text)}</div></div>`;
     container.scrollTop = container.scrollHeight;
 }
 
