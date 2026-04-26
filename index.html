@@ -1,1592 +1,648 @@
 <!DOCTYPE html>
 <html lang="es-CL">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#0a0a0a">
-    <title>La Comadre Lola | Quilicura</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌹</text></svg>">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Monoton&family=Righteous&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        /* ================= BASE Y FONDO ================= */
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
-        html { min-height: 100vh; }
-        body { 
-            min-height: 100vh; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #0d0d12; color: white; overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; min-height: 100vh; z-index: 0; pointer-events: none; background: #0d0d12; }
-        .bg-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0; transition: opacity 2s ease-in-out; }
-        .bg-slide.active { opacity: 1; }
-        .bg-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.88); z-index: 1; }
-        
-        @font-face {
-            font-family: 'BudmoJiggler';
-            src: url('fonts/BudmoJiggler.woff2') format('woff2'), url('fonts/BudmoJiggler.woff') format('woff');
-            font-weight: normal; font-style: normal; font-display: swap;
-        }
-        
-        /* ================= ROSAS DINÁMICAS ================= */
-        .rose-garden { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; overflow: visible; }
-        .rose { position: absolute; opacity: 0; filter: drop-shadow(0 0 8px rgba(255, 107, 157, 0.6)); animation: rose-fall linear infinite; will-change: transform, opacity; }
-        
-        @keyframes rose-fall {
-            0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
-            5% { opacity: 0.9; }
-            25% { transform: translateY(25vh) translateX(15px) rotate(90deg); }
-            50% { transform: translateY(50vh) translateX(-10px) rotate(180deg); }
-            75% { transform: translateY(75vh) translateX(20px) rotate(270deg); opacity: 0.9; }
-            95% { opacity: 0.6; }
-            100% { transform: translateY(110vh) translateX(0) rotate(360deg); opacity: 0; }
-        }
-        
-        .petal { position: absolute; background: radial-gradient(circle, #ff6b9d 0%, #d4547b 100%); border-radius: 50% 0 50% 50%; opacity: 0; animation: petal-fall linear infinite; filter: blur(0.5px); }
-        
-        @keyframes petal-fall {
-            0% { transform: translateY(-5vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 0.7; }
-            90% { opacity: 0.5; }
-            100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
-        }
-        
-        /* ================= NAVEGACIÓN ================= */
-        .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: rgba(0,0,0,0.95); border-bottom: 2px solid #E8913A; padding: 10px 16px; backdrop-filter: blur(10px); }
-        .nav-content { max-width: 900px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .nav-logo { display: flex; align-items: center; text-decoration: none; }
-        .nav-logo-img { height: 36px; width: auto; filter: drop-shadow(0 0 10px rgba(232,145,58,0.5)); }
-        .nav-links { display: flex; align-items: center; gap: 12px; }
-        .nav-link { color: #ccc; text-decoration: none; font-size: 13px; }
-        .nav-link:hover { color: #E8913A; }
-        .nav-btn { background: #E8913A; color: black; padding: 6px 14px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 13px; }
-
-        /* ================= CONTENEDORES Y SECCIONES ================= */
-        .content { 
-            position: relative; z-index: 50; padding-top: 70px; padding-bottom: 40px;
-            flex-grow: 1; /* Hace que el contenido principal crezca para empujar el footer hacia abajo */
-        }
-        .container { max-width: 800px; margin: 0 auto; padding: 0 16px; }
-        section { 
-            padding-top: 60px; margin-bottom: 40px; 
-            scroll-margin-top: 70px; /* Espacio para el menú fijo al navegar con anclas (#) */
-        }
-        .section-title { font-family: 'Righteous', cursive; font-size: 32px; text-align: center; color: #E8913A; margin-bottom: 24px; text-shadow: 0 0 10px rgba(232,145,58,0.3), 0 0 20px rgba(232,145,58,0.2); letter-spacing: 2px; }
-
-        #lola-ticket .section-title { font-family: 'BudmoJiggler', 'Righteous', cursive; color: #ffc37e; text-shadow: 0 0 5px rgba(255,255,255,0.7), 0 0 10px #E8913A, 0 0 20px #E8913A, 0 0 40px #E8913A, 0 0 70px #E8913A; }
-
-        /* ================= INICIO (LOGO) ================= */
-        .logo-section { text-align: center; padding: 10px 0 20px 0; margin-top: -20px; }
-        .logo-img { max-width: 320px; width: 70%; height: auto; filter: drop-shadow(0 0 30px rgba(232,145,58,0.4)); animation: floatLogo 6s ease-in-out infinite; }
-        @keyframes floatLogo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-
-        /* ================= CARRUSEL ================= */
-        .cine-carousel-section { margin: 20px 0 50px 0; position: relative; z-index: 50; width: 100%; }
-        .cine-carousel-title { font-family: 'Righteous', cursive; font-size: 14px; text-align: center; color: #E8913A; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 4px; opacity: 0.9; }
-        .cine-carousel-wrapper { position: relative; width: 100%; perspective: 1500px; }
-        .cine-carousel-wrapper:hover .cine-carousel-container { transform: rotateX(0deg) scale(1); box-shadow: 0 20px 60px -10px rgba(0,0,0,0.8); }
-        .cine-carousel-container { position: relative; width: 100%; overflow: hidden; background: #000; aspect-ratio: 21/9; border-top: 2px solid rgba(232,145,58,0.5); border-bottom: 2px solid rgba(232,145,58,0.5); border-radius: 40px; transform: rotateX(-8deg) scale(0.9); box-shadow: 0 40px 80px -20px rgba(0,0,0,0.6); transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.6s ease; }
-        .cine-vignette { position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none; z-index: 55; background: linear-gradient(to right, rgba(13, 13, 18, 0.95) 0%, rgba(13, 13, 18, 0.7) 8%, rgba(13, 13, 18, 0.3) 15%, transparent 20%, transparent 80%, rgba(13, 13, 18, 0.3) 85%, rgba(13, 13, 18, 0.7) 92%, rgba(13, 13, 18, 0.95) 100%); }
-        .cine-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; opacity: 0; transition: opacity 1.5s ease-in-out, transform 8s ease-out; transform: scale(1.05); }
-        .cine-slide.active { opacity: 1; transform: scale(1); }
-        .cine-slide-overlay { position: absolute; bottom: 0; left: 10%; right: 10%; padding: 60px 30px 30px; background: linear-gradient(transparent, rgba(0,0,0,0.85)); transform: translateY(20px); opacity: 0; transition: all 0.6s ease 0.3s; text-align: center; z-index: 70; }
-        .cine-slide.active .cine-slide-overlay { transform: translateY(0); opacity: 1; }
-        .cine-slide-title { font-family: 'Righteous', cursive; font-size: clamp(22px, 4vw, 48px); color: #E8913A; text-shadow: 0 3px 30px rgba(0,0,0,1), 0 0 30px rgba(232,145,58,0.6); letter-spacing: 3px; }
-        .cine-dots { display: flex; justify-content: center; gap: 12px; margin-top: 25px; }
-        .cine-dot { width: 14px; height: 14px; border-radius: 50%; background: rgba(232,145,58,0.15); cursor: pointer; transition: all 0.3s; border: 2px solid rgba(232,145,58,0.5); }
-        .cine-dot.active { background: #E8913A; transform: scale(1.3); box-shadow: 0 0 20px #E8913A; border-color: #E8913A; }
-        
-        /* ================= LOLA TICKET ================= */
-        .ticket-grid { display: grid; grid-template-columns: 1fr; gap: 24px; margin-top: 32px; }
-        @media (min-width: 768px) { .ticket-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; } }
-        .ticket-card { background: rgba(17,17,17,0.9); border: 1px solid rgba(232,145,58,0.3); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; transition: transform 0.3s ease; }
-        .ticket-card:hover { transform: translateY(-5px); border-color: rgba(232,145,58,0.6); }
-        .ticket-img { width: 100%; height: auto; display: block; }
-        .ticket-info { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
-        .ticket-desc { color: #bbb; font-size: 14px; line-height: 1.6; flex-grow: 1; margin-bottom: 20px; }
-        .ticket-btn { background: #E8913A; color: black; padding: 10px 20px; border-radius: 24px; text-decoration: none; font-weight: bold; font-size: 14px; text-align: center; transition: background-color 0.3s; }
-        .ticket-btn:hover { background: #ffac5c; }
-
-        /* ================= CARTA Y BOTONES GRANDES ================= */
-        .action-card { background: rgba(17,17,17,0.9); border: 2px dashed rgba(232,145,58,0.5); border-radius: 16px; padding: 40px 20px; text-align: center; transition: all 0.3s ease; }
-        .action-card:hover { border-style: solid; box-shadow: 0 0 20px rgba(232,145,58,0.2); transform: translateY(-2px); }
-        .action-icon { font-size: 48px; margin-bottom: 16px; display: block; }
-        .action-btn { display: inline-block; background: linear-gradient(135deg, #E8913A, #ffac5c); color: #000; padding: 15px 30px; border-radius: 30px; font-weight: 700; font-size: 18px; text-decoration: none; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(232,145,58,0.4); transition: transform 0.2s; }
-        .action-btn:active { transform: scale(0.95); }
-
-        /* ================= RESERVAS (CHAT) ================= */
-        .chat-box { background: rgba(17,17,17,0.95); border: 2px solid rgba(232,145,58,0.5); border-radius: 20px; overflow: hidden; margin-bottom: 24px; }
-        .chat-messages { height: 400px; overflow-y: auto; padding: 16px; }
-        .chat-message { display: flex; gap: 12px; margin-bottom: 16px; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .chat-avatar { width: 36px; height: 36px; background: linear-gradient(135deg, #E8913A, #D4547B); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-        .chat-avatar.user { background: linear-gradient(135deg, #4ECDC4, #44A08D); }
-        .chat-bubble { background: rgba(255,255,255,0.1); padding: 12px 16px; border-radius: 16px; max-width: 80%; font-size: 14px; line-height: 1.5; }
-        .chat-message.user { flex-direction: row-reverse; }
-        .chat-message.user .chat-bubble { background: rgba(232,145,58,0.2); }
-        .chat-options { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; margin-left: 48px; }
-        .chat-option-btn { background: rgba(232,145,58,0.2); border: 1px solid rgba(232,145,58,0.5); color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
-        .chat-input-area { display: flex; gap: 8px; padding: 12px; border-top: 1px solid rgba(232,145,58,0.3); background: rgba(0,0,0,0.3); }
-        .chat-input { flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(232,145,58,0.3); border-radius: 20px; padding: 10px 16px; color: white; font-size: 14px; outline: none; }
-        .chat-send-btn { width: 40px; height: 40px; background: #E8913A; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-
-        /* ================= UBICACIÓN Y CONTACTO ================= */
-        .info-grid { display: grid; gap: 16px; margin-bottom: 32px; }
-        /* @media (min-width: 640px) { .info-grid { grid-template-columns: repeat(2, 1fr); } } */ /* Se deja en una columna para mejor flujo */
-        .info-card { background: rgba(17,17,17,0.9); border: 1px solid rgba(232,145,58,0.3); border-radius: 16px; padding: 24px; text-align: center; display: flex; flex-direction: column; justify-content: center;}
-        .info-card h3 { color: #E8913A; margin-bottom: 12px; font-family: 'Righteous', cursive; }
-        .info-card p { color: #ccc; font-size: 14px; line-height: 1.6; margin-bottom: 10px;}
-        .map-wrapper { width: 100%; height: 250px; border-radius: 16px; overflow: hidden; border: 1px solid rgba(232,145,58,0.3); }
-        .map-wrapper iframe { width: 100%; height: 100%; border: none; }
-        
-        /* FOOTER & WHATSAPP */
-        .footer { 
-            position: relative; /* Necesario para que z-index funcione */
-            z-index: 10;        /* Eleva el footer por encima del fondo (que tiene z-index: 0) */
-            background: rgba(0,0,0,0.95); 
-            border-top: 2px solid #E8913A; 
-            padding: 16px 24px; 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 40px;
-        }
-        .footer-text { color: #bbb; font-size: 13px; }
-        .footer-dev { 
-            color: #aaa; 
-            font-size: 13px; 
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .footer-dev a { display: inline-block; line-height: 0; }
-        .footer-logo-dev { height: 70px; transition: filter 0.3s; }
-        .footer-dev a:hover .footer-logo-dev { filter: brightness(1.3); }
-
-        /* ========== TARJETA DE HORARIOS INTERACTIVA CHILENA ========== */
-        .horarios-card {
-            background: linear-gradient(145deg, #1a1a20 0%, #0d0d12 100%);
-            border: 2px solid #E8913A;
-            border-radius: 20px;
-            padding: 0;
-            overflow: hidden;
-            position: relative;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .horarios-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(232, 145, 58, 0.3), 0 0 60px rgba(232, 145, 58, 0.1);
-            border-color: #ff9f4a;
-        }
-        .horarios-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(232, 145, 58, 0.1), transparent);
-            transition: left 0.6s;
-        }
-        .horarios-card:hover::before {
-            left: 100%;
-        }
-        
-        /* Header con estado */
-        .horarios-header {
-            background: linear-gradient(135deg, #E8913A 0%, #D4547B 100%);
-            padding: 20px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        .horarios-header::after {
-            content: '🌮';
-            position: absolute;
-            font-size: 80px;
-            opacity: 0.1;
-            right: -10px;
-            top: -20px;
-            animation: floatTaco 3s ease-in-out infinite;
-        }
-        @keyframes floatTaco {
-            0%, 100% { transform: rotate(-10deg) translateY(0); }
-            50% { transform: rotate(10deg) translateY(-10px); }
-        }
-        .horarios-title {
-            font-family: 'Righteous', cursive;
-            font-size: 24px;
-            color: #0d0d12;
-            margin: 0;
-            text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
-        }
-        
-        /* Estado actual */
-        .estado-actual {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 20px;
-            background: rgba(0,0,0,0.3);
-            border-bottom: 1px dashed rgba(232, 145, 58, 0.3);
-        }
-        .estado-indicator {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-            box-shadow: 0 0 20px currentColor;
-        }
-        .estado-indicator.abierto {
-            background: #00FF7F;
-            color: #00FF7F;
-        }
-        .estado-indicator.cerrado {
-            background: #FF4757;
-            color: #FF4757;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.8; }
-        }
-        .estado-texto {
-            font-family: 'Righteous', cursive;
-            font-size: 20px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        .estado-texto.abierto { color: #00FF7F; text-shadow: 0 0 20px rgba(0, 255, 127, 0.5); }
-        .estado-texto.cerrado { color: #FF4757; text-shadow: 0 0 20px rgba(255, 71, 87, 0.5); }
-        
-        /* Frase chilena */
-        .frase-chilena {
-            text-align: center;
-            padding: 15px 20px;
-            font-size: 15px;
-            color: #ccc;
-            font-style: italic;
-            background: rgba(232, 145, 58, 0.05);
-        }
-        .frase-chilena span {
-            color: #E8913A;
-            font-weight: bold;
-        }
-        
-        /* Countdown para apertura/cierre */
-        .countdown-horarios {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            padding: 20px;
-            background: linear-gradient(180deg, transparent, rgba(0,0,0,0.3));
-        }
-        .countdown-item {
-            text-align: center;
-            min-width: 50px;
-        }
-        .countdown-num-horarios {
-            font-family: 'Righteous', cursive;
-            font-size: 28px;
-            color: #E8913A;
-            display: block;
-            line-height: 1;
-            text-shadow: 0 0 10px rgba(232, 145, 58, 0.5);
-        }
-        .countdown-label-horarios {
-            font-size: 10px;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .countdown-texto {
-            text-align: center;
-            font-size: 12px;
-            color: #888;
-            padding-bottom: 15px;
-        }
-        
-        /* Horarios detalle */
-        .horarios-detalle {
-            padding: 20px;
-        }
-        .horario-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            transition: all 0.3s;
-        }
-        .horario-item:hover {
-            padding-left: 10px;
-            background: rgba(232, 145, 58, 0.05);
-            border-radius: 8px;
-        }
-        .horario-item:last-child {
-            border-bottom: none;
-        }
-        .horario-dia {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-        }
-        .horario-dia .emoji {
-            font-size: 20px;
-        }
-        .horario-dia .texto {
-            color: #fff;
-        }
-        .horario-dia .texto.hoy {
-            color: #E8913A;
-        }
-        .horario-hora {
-            font-family: 'Righteous', cursive;
-            color: #E8913A;
-            font-size: 14px;
-        }
-        
-        /* Botón de acción */
-        .horario-action {
-            padding: 0 20px 20px;
-        }
-        .btn-reserva-ahora {
-            width: 100%;
-            background: linear-gradient(135deg, #E8913A 0%, #D4547B 100%);
-            border: none;
-            padding: 15px;
-            border-radius: 12px;
-            color: #0d0d12;
-            font-family: 'Righteous', cursive;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-reserva-ahora:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(232, 145, 58, 0.4);
-        }
-        .btn-reserva-ahora::before {
-            content: '🔥';
-            position: absolute;
-            left: 15px;
-            animation: flame 0.5s ease-in-out infinite alternate;
-        }
-        @keyframes flame {
-            from { transform: scale(1); }
-            to { transform: scale(1.2); }
-        }
-        .btn-reserva-ahora::after {
-            content: '🍻';
-            position: absolute;
-            right: 15px;
-            animation: chela 0.7s ease-in-out infinite alternate;
-        }
-        @keyframes chela {
-            from { transform: translateY(0) rotate(-10deg); }
-            to { transform: translateY(-5px) rotate(10deg); }
-        }
-
-        /* ========== TARJETA CÓMO LLEGAR INTERACTIVA CHILENA ========== */
-        .llegar-card {
-            background: linear-gradient(145deg, #1a1a20 0%, #0d0d12 100%);
-            border: 2px solid #E8913A;
-            border-radius: 20px;
-            padding: 0;
-            overflow: hidden;
-            position: relative;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .llegar-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px rgba(232, 145, 58, 0.3), 0 0 60px rgba(232, 145, 58, 0.1);
-            border-color: #ff9f4a;
-        }
-        
-        .llegar-header {
-            background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
-            padding: 20px;
-            text-align: center;
-            position: relative;
-        }
-        .llegar-header::after {
-            content: '🗺️';
-            position: absolute;
-            font-size: 60px;
-            opacity: 0.15;
-            right: 10px;
-            top: -5px;
-            animation: bounceMap 2s ease-in-out infinite;
-        }
-        @keyframes bounceMap {
-            0%, 100% { transform: translateY(0) rotate(-5deg); }
-            50% { transform: translateY(-10px) rotate(5deg); }
-        }
-        .llegar-title {
-            font-family: 'Righteous', cursive;
-            font-size: 24px;
-            color: #0d0d12;
-            margin: 0;
-            text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
-        }
-        
-        /* Selector de transporte tipo tabs */
-        .transporte-tabs {
-            display: flex;
-            background: rgba(0,0,0,0.3);
-            padding: 5px;
-            gap: 5px;
-        }
-        .transporte-tab {
-            flex: 1;
-            padding: 15px 10px;
-            background: transparent;
-            border: none;
-            color: #888;
-            font-family: 'Righteous', cursive;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-        .transporte-tab .emoji {
-            font-size: 24px;
-            transition: transform 0.3s;
-        }
-        .transporte-tab:hover {
-            color: #ccc;
-            background: rgba(255,255,255,0.05);
-        }
-        .transporte-tab:hover .emoji {
-            transform: scale(1.2);
-        }
-        .transporte-tab.active {
-            background: linear-gradient(135deg, #4ECDC4, #44A08D);
-            color: #0d0d12;
-            box-shadow: 0 5px 20px rgba(78, 205, 196, 0.4);
-        }
-        .transporte-tab.active .emoji {
-            animation: wiggle 0.5s ease-in-out infinite;
-        }
-        @keyframes wiggle {
-            0%, 100% { transform: rotate(-5deg); }
-            50% { transform: rotate(5deg); }
-        }
-        
-        /* Contenido de cada transporte */
-        .transporte-content {
-            padding: 25px;
-            min-height: 200px;
-        }
-        .transporte-panel {
-            display: none;
-            animation: fadeSlide 0.4s ease;
-        }
-        .transporte-panel.active {
-            display: block;
-        }
-        @keyframes fadeSlide {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        .transporte-ruta {
-            background: rgba(78, 205, 196, 0.1);
-            border-left: 4px solid #4ECDC4;
-            border-radius: 0 12px 12px 0;
-            padding: 20px;
-            margin-bottom: 15px;
-        }
-        .ruta-paso {
-            display: flex;
-            align-items: flex-start;
-            gap: 15px;
-            margin-bottom: 15px;
-            position: relative;
-        }
-        .ruta-paso:not(:last-child)::after {
-            content: '';
-            position: absolute;
-            left: 18px;
-            top: 35px;
-            width: 2px;
-            height: calc(100% + 5px);
-            background: linear-gradient(to bottom, #4ECDC4, transparent);
-        }
-        .paso-numero {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, #4ECDC4, #44A08D);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Righteous', cursive;
-            font-size: 16px;
-            color: #0d0d12;
-            flex-shrink: 0;
-            z-index: 1;
-        }
-        .paso-texto {
-            flex: 1;
-            padding-top: 8px;
-        }
-        .paso-texto strong {
-            color: #4ECDC4;
-            display: block;
-            margin-bottom: 3px;
-        }
-        .paso-texto span {
-            color: #aaa;
-            font-size: 13px;
-        }
-        .paso-tiempo {
-            background: rgba(78, 205, 196, 0.2);
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            color: #4ECDC4;
-            white-space: nowrap;
-        }
-        
-        /* Info extra chilena */
-        .llegar-tip {
-            background: linear-gradient(135deg, rgba(232, 145, 58, 0.1), rgba(212, 84, 123, 0.1));
-            border: 1px dashed rgba(232, 145, 58, 0.4);
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 15px;
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-        .llegar-tip .emoji {
-            font-size: 28px;
-            animation: bounceTip 1s ease-in-out infinite;
-        }
-        @keyframes bounceTip {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-        .llegar-tip-texto {
-            font-size: 13px;
-            color: #ccc;
-            line-height: 1.5;
-        }
-        .llegar-tip-texto strong {
-            color: #E8913A;
-        }
-        
-        /* Botón de ruta */
-        .llegar-action {
-            padding: 0 25px 25px;
-        }
-        .btn-como-llegar {
-            width: 100%;
-            background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
-            border: none;
-            padding: 15px;
-            border-radius: 12px;
-            color: #0d0d12;
-            font-family: 'Righteous', cursive;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            position: relative;
-            overflow: hidden;
-        }
-        .btn-como-llegar:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 30px rgba(78, 205, 196, 0.4);
-        }
-        .btn-como-llegar .emoji-left {
-            animation: moveLeft 1s ease-in-out infinite alternate;
-        }
-        @keyframes moveLeft {
-            from { transform: translateX(0); }
-            to { transform: translateX(-5px); }
-        }
-        .btn-como-llegar .emoji-right {
-            animation: moveRight 1s ease-in-out infinite alternate;
-        }
-        @keyframes moveRight {
-            from { transform: translateX(0); }
-            to { transform: translateX(5px); }
-        }
-        
-        /* Efecto de destello */
-        .shine-effect {
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transform: skewX(-25deg);
-            animation: shine 3s infinite;
-        }
-
-        /* ================= MEDIA QUERIES - RESPONSIVE ================= */
-        /* Ocultar rosas en móviles y tablets pequeñas */
-        @media (max-width: 1024px) {
-            .rose-garden { display: none !important; }
-        }
-        
-        /* Ajustes para tablets */
-        @media (max-width: 768px) {
-            .nav { padding: 8px 12px; }
-            .nav-logo-img { height: 32px; }
-            .nav-links { gap: 8px; }
-            .nav-link { font-size: 12px; }
-            .nav-btn { padding: 5px 12px; font-size: 12px; }
-            
-            .content { padding-top: 60px; }
-            .container { padding: 0 12px; }
-            section { padding-top: 40px; margin-bottom: 30px; scroll-margin-top: 60px; }
-            .section-title { font-size: 24px; margin-bottom: 16px; }
-            
-            .logo-section { padding: 5px 0 15px 0; }
-            .logo-img { max-width: 260px; width: 75%; }
-            
-            .cine-carousel-section { margin: 10px 0 30px 0; }
-            .cine-carousel-title { font-size: 12px; letter-spacing: 2px; margin-bottom: 15px; }
-            .cine-carousel-container { aspect-ratio: 16/9; border-radius: 20px; transform: rotateX(-5deg) scale(0.95); }
-            .cine-slide-overlay { padding: 30px 15px 20px; left: 5%; right: 5%; }
-            .cine-slide-title { font-size: clamp(18px, 5vw, 32px); letter-spacing: 1px; }
-            .cine-dots { margin-top: 15px; gap: 8px; }
-            .cine-dot { width: 10px; height: 10px; }
-            
-            .ticket-grid { gap: 16px; margin-top: 24px; }
-            .ticket-info { padding: 16px; }
-            .ticket-desc { font-size: 13px; margin-bottom: 16px; }
-            .ticket-btn { padding: 8px 16px; font-size: 13px; }
-            
-            .horarios-title, .llegar-title { font-size: 20px; }
-            .estado-actual { padding: 15px; }
-            .estado-texto { font-size: 18px; }
-            .frase-chilena { padding: 12px 16px; font-size: 14px; }
-            .countdown-horarios { padding: 15px; gap: 10px; }
-            .countdown-num-horarios { font-size: 24px; }
-            .horarios-detalle { padding: 15px; }
-            .horario-item { padding: 10px 0; }
-            .horario-dia .emoji { font-size: 18px; }
-            .horario-hora { font-size: 13px; }
-            .btn-reserva-ahora { padding: 12px; font-size: 14px; }
-            
-            .transporte-tabs { padding: 3px; }
-            .transporte-tab { padding: 10px 5px; font-size: 12px; }
-            .transporte-tab .emoji { font-size: 20px; }
-            .transporte-content { padding: 20px 15px; }
-            .transporte-ruta { padding: 15px; }
-            .ruta-paso { gap: 10px; margin-bottom: 12px; }
-            .paso-numero { width: 30px; height: 30px; font-size: 14px; }
-            .paso-texto strong { font-size: 14px; }
-            .paso-texto span { font-size: 12px; }
-            .paso-tiempo { font-size: 11px; padding: 4px 8px; }
-            .llegar-tip { padding: 12px; }
-            .llegar-tip .emoji { font-size: 24px; }
-            .llegar-tip-texto { font-size: 12px; }
-            .llegar-action { padding: 0 15px 15px; }
-            .btn-como-llegar { padding: 12px; font-size: 14px; }
-            
-            .chat-messages { height: 350px; padding: 12px; }
-            .chat-message { gap: 10px; margin-bottom: 12px; }
-            .chat-avatar { width: 32px; height: 32px; font-size: 16px; }
-            .chat-bubble { padding: 10px 14px; font-size: 13px; max-width: 85%; }
-            .chat-options { margin-left: 42px; gap: 6px; }
-            .chat-option-btn { padding: 6px 12px; font-size: 12px; }
-            .chat-input-area { padding: 10px; }
-            .chat-input { padding: 8px 14px; font-size: 13px; }
-            
-            .action-card { padding: 30px 16px; }
-            .action-icon { font-size: 40px; }
-            .action-btn { padding: 12px 24px; font-size: 16px; }
-            
-            .info-card { padding: 20px; }
-            .info-card p { font-size: 13px; }
-            .map-wrapper { height: 200px; }
-            
-            .footer { padding: 12px 16px; gap: 20px; flex-direction: column; }
-            .footer-text { font-size: 12px; text-align: center; }
-            .footer-dev { flex-direction: column; gap: 8px; text-align: center; }
-            .footer-logo-dev { height: 50px; }
-        }
-        
-        /* Ajustes para móviles pequeños */
-        @media (max-width: 480px) {
-            .nav { padding: 6px 10px; }
-            .nav-logo-img { height: 28px; }
-            .nav-links { gap: 6px; }
-            .nav-link { font-size: 11px; }
-            .nav-btn { padding: 4px 10px; font-size: 11px; border-radius: 15px; }
-            
-            .content { padding-top: 50px; padding-bottom: 30px; }
-            section { padding-top: 30px; margin-bottom: 20px; scroll-margin-top: 50px; }
-            .section-title { font-size: 20px; letter-spacing: 1px; }
-            
-            .logo-img { max-width: 200px; }
-            
-            .cine-carousel-container { aspect-ratio: 4/3; border-radius: 12px; transform: none; }
-            .cine-vignette { background: linear-gradient(to right, rgba(13, 13, 18, 0.8) 0%, rgba(13, 13, 18, 0.4) 5%, transparent 10%, transparent 90%, rgba(13, 13, 18, 0.4) 95%, rgba(13, 13, 18, 0.8) 100%); }
-            .cine-slide-title { font-size: clamp(16px, 6vw, 24px); }
-            .cine-dots { margin-top: 10px; }
-            .cine-dot { width: 8px; height: 8px; }
-            
-            .ticket-grid { gap: 12px; margin-top: 20px; }
-            .ticket-info { padding: 12px; }
-            .ticket-desc { font-size: 12px; line-height: 1.5; }
-            .ticket-btn { padding: 8px 14px; font-size: 12px; }
-            
-            .horarios-header, .llegar-header { padding: 15px; }
-            .horarios-header::after { font-size: 60px; }
-            .horarios-title, .llegar-title { font-size: 18px; }
-            .estado-actual { padding: 12px; gap: 8px; }
-            .estado-indicator { width: 14px; height: 14px; }
-            .estado-texto { font-size: 16px; }
-            .frase-chilena { padding: 10px 12px; font-size: 13px; }
-            .countdown-horarios { padding: 12px; gap: 8px; }
-            .countdown-item { min-width: 40px; }
-            .countdown-num-horarios { font-size: 20px; }
-            .countdown-label-horarios { font-size: 9px; }
-            .countdown-texto { padding-bottom: 12px; font-size: 11px; }
-            .horarios-detalle { padding: 12px; }
-            .horario-item { padding: 8px 0; flex-wrap: wrap; gap: 5px; }
-            .horario-dia { gap: 8px; }
-            .horario-dia .emoji { font-size: 16px; }
-            .horario-dia .texto { font-size: 13px; }
-            .horario-hora { font-size: 12px; }
-            .btn-reserva-ahora { padding: 10px; font-size: 13px; }
-            .btn-reserva-ahora::before, .btn-reserva-ahora::after { display: none; }
-            
-            .transporte-tab { padding: 8px 3px; font-size: 10px; }
-            .transporte-tab .emoji { font-size: 16px; }
-            .transporte-content { padding: 15px 12px; }
-            .transporte-ruta { padding: 12px; }
-            .ruta-paso { flex-wrap: wrap; }
-            .paso-numero { width: 26px; height: 26px; font-size: 12px; }
-            .paso-texto { flex: 1 1 60%; }
-            .paso-tiempo { margin-left: 36px; margin-top: 5px; }
-            .llegar-tip { padding: 10px; flex-wrap: wrap; }
-            .llegar-tip .emoji { font-size: 20px; }
-            .llegar-tip-texto { font-size: 11px; }
-            .btn-como-llegar { padding: 10px; font-size: 13px; }
-            .btn-como-llegar .emoji-left, .btn-como-llegar .emoji-right { display: none; }
-            
-            .chat-messages { height: 300px; padding: 10px; }
-            .chat-bubble { padding: 8px 12px; font-size: 12px; }
-            .chat-options { margin-left: 0; margin-top: 8px; }
-            .chat-option-btn { padding: 5px 10px; font-size: 11px; border-radius: 15px; }
-            
-            .action-card { padding: 24px 12px; }
-            .action-icon { font-size: 36px; margin-bottom: 12px; }
-            .action-btn { padding: 10px 20px; font-size: 14px; }
-            
-            .info-card { padding: 16px; }
-            .info-card h3 { font-size: 18px; }
-            .info-card p { font-size: 12px; line-height: 1.5; }
-            .map-wrapper { height: 180px; border-radius: 12px; }
-            
-            .footer { padding: 10px; }
-            .footer-text { font-size: 11px; }
-            .footer-dev { font-size: 11px; }
-            .footer-logo-dev { height: 40px; }
-        }
-        
-        /* Ajustes para móviles muy pequeños */
-        @media (max-width: 360px) {
-            .nav-link { display: none; }
-            .nav-links { gap: 4px; }
-            .nav-btn { padding: 4px 8px; font-size: 10px; }
-            
-            .section-title { font-size: 18px; }
-            .logo-img { max-width: 170px; }
-            
-            .horario-dia .texto { font-size: 12px; }
-            .horario-hora { font-size: 11px; }
-            
-            .transporte-tab { font-size: 9px; padding: 6px 2px; }
-            .transporte-tab .emoji { font-size: 14px; }
-            
-            .chat-messages { height: 250px; }
-        }
-        
-        /* Orientación landscape en móviles */
-        @media (max-height: 500px) and (orientation: landscape) {
-            .rose-garden { display: none !important; }
-            .nav { padding: 5px 10px; position: absolute; }
-            .nav-logo-img { height: 24px; }
-            .content { padding-top: 40px; }
-            .logo-section { padding: 5px 0; }
-            .logo-img { max-width: 150px; }
-            .cine-carousel-section { margin: 5px 0 15px 0; }
-            .section-title { margin-bottom: 12px; }
-        }
-        
-        /* Soporte para pantallas grandes (desktops ampliados) */
-        @media (min-width: 1400px) {
-            .container { max-width: 1000px; }
-            .nav-content { max-width: 1000px; }
-            .section-title { font-size: 40px; }
-            .logo-img { max-width: 400px; }
-            .cine-carousel-container { aspect-ratio: 21/9; }
-        }
-        @keyframes shine {
-            0%, 100% { left: -100%; }
-            50% { left: 200%; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="theme-color" content="#0d0d12">
+  <meta name="description" content="La Comadre Lola — Restaurante, Bar y Eventos en Quilicura, Santiago. Shows en vivo, artistas nacionales, gastronomia chilena y carrete de primera.">
+  <meta name="keywords" content="La Comadre Lola, Quilicura, restaurante, bar, eventos, shows en vivo, Santiago, Chile">
+  <meta property="og:type"        content="website">
+  <meta property="og:url"         content="https://alexispferrada-wq.github.io/lacomadrelolaCL/">
+  <meta property="og:title"       content="La Comadre Lola | Restaurant Bar Eventos Quilicura">
+  <meta property="og:description" content="Shows en vivo con artistas nacionales, gastronomia chilena y el mejor carrete en Quilicura, Santiago.">
+  <meta property="og:image"       content="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772145367/Fondo_fricsr.png">
+  <meta property="twitter:card"   content="summary_large_image">
+  <title>La Comadre Lola | Restaurant - Bar - Eventos - Quilicura</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#x1F339;</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/animations.css">
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <div id="rose-garden-container" class="rose-garden"></div>
-    
-    <div class="bg-container">
-        <div class="bg-slide active" style="background-image: url('https://res.cloudinary.com/dqsz4ua73/image/upload/v1772145367/Fondo_fricsr.png');"></div>
-        <div class="bg-overlay"></div>
+  <div id="rose-garden-container" class="rose-garden" aria-hidden="true"></div>
+
+  <nav class="nav" role="navigation" aria-label="Navegación principal">
+    <div class="nav-content">
+      <a href="#inicio" class="nav-logo" aria-label="La Comadre Lola Inicio">
+        <img src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772144927/logo_antiguo_blanco_hlqj58.png" alt="La Comadre Lola" width="120" height="40">
+      </a>
+      <div class="nav-links" role="menubar">
+        <a href="#eventos"   class="nav-link" role="menuitem">Eventos</a>
+        <a href="#artistas"  class="nav-link" role="menuitem">Artistas</a>
+        <a href="#galeria"   class="nav-link" role="menuitem">Galería</a>
+        <a href="#ubicacion" class="nav-link" role="menuitem">Horarios</a>
+        <a href="#reservas"  class="nav-btn"  role="menuitem">Reservar</a>
+      </div>
+      <button class="hamburger" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobileMenu">
+        <span></span><span></span><span></span>
+      </button>
     </div>
-    
-    <nav class="nav">
-        <div class="nav-content">
-            <a href="#inicio" class="nav-logo">
-                <img src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772144927/logo_antiguo_blanco_hlqj58.png" alt="La Comadre Lola" class="nav-logo-img">
-            </a>
-            <div class="nav-links">
-                <a href="#carta" class="nav-link">Carta</a>
-                <a href="#ubicacion" class="nav-link">Ubicación</a>
-                <a href="#contacto" class="nav-link">Contacto</a>
-                <a href="#reservas" class="nav-btn">Reservar</a>
-            </div>
-        </div>
-    </nav>
-    
-    <div class="content">
-        <!-- CARRUSEL PRIMERO - MEJORES MOMENTOS -->
-        <div class="cine-carousel-section">
-            <div class="cine-carousel-title">✨ Momentos Inolvidables ✨</div>
-            <div class="cine-carousel-wrapper">
-                <div class="cine-carousel-container">
-                    <div class="cine-vignette"></div>
-                    <div class="cine-slide active" style="background-image: url('https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384756/IMG_5076_hex95q.jpg');"><div class="cine-slide-overlay"><div class="cine-slide-title">EVENTO 1</div></div></div>
-                    <div class="cine-slide" style="background-image: url('https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384756/IMG_9819_up1rqy.jpg');"><div class="cine-slide-overlay"><div class="cine-slide-title">EVENTO 2</div></div></div>
-                    <div class="cine-slide" style="background-image: url('https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384757/IMG_6534_ez2yuu.jpg');"><div class="cine-slide-overlay"><div class="cine-slide-title">EVENTO 3</div></div></div>
-                    </div>
-            </div>
-            <div class="cine-dots">
-                <div class="cine-dot active" onclick="goToSlide(0)"></div>
-                <div class="cine-dot" onclick="goToSlide(1)"></div>
-                <div class="cine-dot" onclick="goToSlide(2)"></div>
-            </div>
-        </div>
+  </nav>
 
-        <!-- LOGO PRINCIPAL -->
-        <div class="container">
-            <section id="inicio">
-                <div class="logo-section">
-                    <img src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772144927/logo_antiguo_blanco_hlqj58.png" alt="La Comadre Lola" class="logo-img">
-                </div>
-            </section>
-        </div>
-        
-        <div class="container">
-            
-            <section id="lola-ticket">
-                <h2 class="section-title">LOLA TICKET</h2>
-                <div class="ticket-grid">
-                    <div class="ticket-card">
-                        <img src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772386173/Captura_de_pantalla_2026-03-01_142736_tpeial.png" alt="Flyer Sunset Sessions" class="ticket-img">
-                        <div class="ticket-info">
-                            <p class="ticket-desc">Disfruta de los mejores atardeceres con música house y deep house al aire libre.</p>
-                            <a href="#" class="ticket-btn">Comprar</a>
-                        </div>
-                    </div>
-                    <div class="ticket-card">
-                        <img src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772386172/Captura_de_pantalla_2026-03-01_142910_amyn6w.png" alt="Flyer Noche de Bandas" class="ticket-img">
-                        <div class="ticket-info">
-                            <p class="ticket-desc">Apoya el talento local en nuestra noche de bandas. Rock y pop en vivo.</p>
-                            <a href="#" class="ticket-btn">Comprar</a>
-                        </div>
-                    </div>
-                </div>
-            </section>
+  <div id="mobileMenu" class="mobile-menu" role="menu">
+    <a href="#eventos"   class="nav-link" role="menuitem">Eventos</a>
+    <a href="#artistas"  class="nav-link" role="menuitem">Artistas</a>
+    <a href="#vip"       class="nav-link" role="menuitem">VIP</a>
+    <a href="#galeria"   class="nav-link" role="menuitem">Galería</a>
+    <a href="#ubicacion" class="nav-link" role="menuitem">Horarios</a>
+    <a href="#reservas"  class="nav-btn"  role="menuitem">Reservar Ahora</a>
+  </div>
 
-            <section id="carta">
-                <h2 class="section-title">NUESTRA CARTA</h2>
-                <div class="action-card">
-                    <span class="action-icon">📖</span>
-                    <p class="ticket-desc" style="margin-bottom: 24px;">Descubre nuestros sabores criollos y preparaciones exclusivas directamente desde tu celular.</p>
-                    <a href="#" target="_blank" class="action-btn">Ver Menú Digital</a>
-                </div>
-            </section>
-
-            <section id="reservas">
-                <h2 class="section-title">HAZ TU RESERVA</h2>
-                <div class="chat-box">
-                    <div class="chat-messages" id="chatMessages">
-                        <div class="chat-message">
-                            <div class="chat-avatar">🌮</div>
-                            <div class="chat-bubble">
-                                <strong>¡Hola! Soy Lola, tu asistente ✨</strong><br>¿Qué tipo de experiencia buscas hoy?
-                            </div>
-                        </div>
-                        <div class="chat-options" id="step1">
-                            <button class="chat-option-btn" onclick="selectOption(1, 'mesa', '🍽️ Mesa para cenar')">🍽️ Mesa para cenar</button>
-                            <button class="chat-option-btn" onclick="selectOption(1, 'evento', '🎉 Evento privado')">🎉 Evento privado</button>
-                        </div>
-                    </div>
-                    
-                    <div class="chat-input-area">
-                        <input type="text" class="chat-input" id="chatInput" placeholder="Escribe tu respuesta..." onkeypress="if(event.key === 'Enter') sendMessage()">
-                        <button class="chat-send-btn" onclick="sendMessage()">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="2" width="18" height="18">
-                                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <section id="ubicacion">
-                <h2 class="section-title">VISÍTANOS</h2>
-                <div class="info-grid">
-                    <div class="horarios-card" id="contacto">
-                        <div class="horarios-header">
-                            <h3 class="horarios-title">🌮 ¿CUÁNDO ESTAMOS? 🍻</h3>
-                            <div class="shine-effect"></div>
-                        </div>
-                        
-                        <div class="estado-actual" id="estadoActual">
-                            <div class="estado-indicator" id="estadoIndicator"></div>
-                            <span class="estado-texto" id="estadoTexto">Cargando...</span>
-                        </div>
-                        
-                        <div class="frase-chilena" id="fraseChilena">
-                            Revisando si estamos <span>carreteando</span> o no... 🔥
-                        </div>
-                        
-                        <div class="countdown-horarios" id="countdownHorarios" style="display: none;">
-                            <div class="countdown-item">
-                                <span class="countdown-num-horarios" id="cdHoras">00</span>
-                                <span class="countdown-label-horarios">Hrs</span>
-                            </div>
-                            <div class="countdown-item">
-                                <span class="countdown-num-horarios" id="cdMinutos">00</span>
-                                <span class="countdown-label-horarios">Min</span>
-                            </div>
-                            <div class="countdown-item">
-                                <span class="countdown-num-horarios" id="cdSegundos">00</span>
-                                <span class="countdown-label-horarios">Seg</span>
-                            </div>
-                        </div>
-                        <div class="countdown-texto" id="countdownTexto"></div>
-                        
-                        <div class="horarios-detalle">
-                            <div class="horario-item" data-dia="1,2">
-                                <div class="horario-dia">
-                                    <span class="emoji">😴</span>
-                                    <span class="texto">Lunes - Martes</span>
-                                </div>
-                                <span class="horario-hora" style="color: #666; font-size: 12px;">CERRAO - DESCANSANDO</span>
-                            </div>
-                            <div class="horario-item" data-dia="3">
-                                <div class="horario-dia">
-                                    <span class="emoji">🐫</span>
-                                    <span class="texto">Miércoles</span>
-                                </div>
-                                <span class="horario-hora">17:00 - 00:00</span>
-                            </div>
-                            <div class="horario-item" data-dia="4">
-                                <div class="horario-dia">
-                                    <span class="emoji">🍻</span>
-                                    <span class="texto">Jueves</span>
-                                </div>
-                                <span class="horario-hora">17:00 - 01:00</span>
-                            </div>
-                            <div class="horario-item" data-dia="5,6">
-                                <div class="horario-dia">
-                                    <span class="emoji">🔥</span>
-                                    <span class="texto">Viernes - Sábado</span>
-                                </div>
-                                <span class="horario-hora">13:00 - 02:00</span>
-                            </div>
-                            <div class="horario-item" data-dia="0">
-                                <div class="horario-dia">
-                                    <span class="emoji">☀️</span>
-                                    <span class="texto">Domingo</span>
-                                </div>
-                                <span class="horario-hora">13:00 - 19:00</span>
-                            </div>
-                        </div>
-                        
-                        <div class="horario-action">
-                            <button class="btn-reserva-ahora" onclick="document.getElementById('reservas').scrollIntoView({behavior: 'smooth'})">
-                                ¡Reserva Al Tiro Caleta! 🚀
-                            </button>
-                        </div>
-                    </div>
-                    <div class="llegar-card">
-                        <div class="llegar-header">
-                            <h3 class="llegar-title">🗺️ ¿CÓMO CAER? 🚇</h3>
-                        </div>
-                        
-                        <div class="transporte-tabs">
-                            <button class="transporte-tab active" onclick="cambiarTransporte('metro', this)">
-                                <span class="emoji">🚇</span>
-                                <span>Metro</span>
-                            </button>
-                            <button class="transporte-tab" onclick="cambiarTransporte('micro', this)">
-                                <span class="emoji">🚌</span>
-                                <span>Micro</span>
-                            </button>
-                            <button class="transporte-tab" onclick="cambiarTransporte('auto', this)">
-                                <span class="emoji">🚗</span>
-                                <span>Auto</span>
-                            </button>
-                            <button class="transporte-tab" onclick="cambiarTransporte('apps', this)">
-                                <span class="emoji">📱</span>
-                                <span>Apps</span>
-                            </button>
-                        </div>
-                        
-                        <div class="transporte-content">
-                            <!-- PANEL METRO -->
-                            <div class="transporte-panel active" id="panel-metro">
-                                <div class="transporte-ruta">
-                                    <div class="ruta-paso">
-                                        <div class="paso-numero">1</div>
-                                        <div class="paso-texto">
-                                            <strong>Subite a la Línea 3</strong>
-                                            <span>Desde donde estés, búscate la Línea 3 del Metro 🚇</span>
-                                        </div>
-                                        <span class="paso-tiempo">~18 min</span>
-                                    </div>
-                                    <div class="ruta-paso">
-                                        <div class="paso-numero">2</div>
-                                        <div class="paso-texto">
-                                            <strong>Bájate en Matta</strong>
-                                            <span>Estación que queda a pasitos nomas de la Comadre 📍</span>
-                                        </div>
-                                        <span class="paso-tiempo">2 min 🚶</span>
-                                    </div>
-                                    <div class="ruta-paso">
-                                        <div class="paso-numero">3</div>
-                                        <div class="paso-texto">
-                                            <strong>Llegai caminando</strong>
-                                            <span>Manuel Antonio Matta 1269, Quilicura. ¡No hay perdida! 🌮</span>
-                                        </div>
-                                        <span class="paso-tiempo">¡Llegaste! 🎉</span>
-                                    </div>
-                                </div>
-                                <div class="llegar-tip">
-                                    <span class="emoji">💡</span>
-                                    <div class="llegar-tip-texto">
-                                        <strong>Dato de la Comadre:</strong> Si vienes desde el centro (U. de Chile), son solo 18 minutitos de viaje. ¡Más rápido que la fila del Jumbo! 🛒
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- PANEL MICRO -->
-                            <div class="transporte-panel" id="panel-micro">
-                                <div class="transporte-ruta">
-                                    <div class="ruta-paso">
-                                        <div class="paso-numero">1</div>
-                                        <div class="paso-texto">
-                                            <strong>Desde Plaza Quilicura</strong>
-                                            <span>Tomai cualquier micro que pase por Manuel Antonio Matta 🚌</span>
-                                        </div>
-                                        <span class="paso-tiempo">~10 min</span>
-                                    </div>
-                                    <div class="ruta-paso">
-                                        <div class="paso-numero">2</div>
-                                        <div class="paso-texto">
-                                            <strong>Bájate en Matta</strong>
-                                            <span>Te deja a la vuelta de la esquina, caleta 📍</span>
-                                        </div>
-                                        <span class="paso-tiempo">2 min 🚶</span>
-                                    </div>
-                                </div>
-                                <div class="llegar-tip">
-                                    <span class="emoji">🎯</span>
-                                    <div class="llegar-tip-texto">
-                                        <strong>Tip Choro:</strong> También podís tomar el Metro de Plaza Quilicura (1 estación nomas) hasta Lo Cruzat. ¡Más rápido que pedir la cuenta! 💨
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- PANEL AUTO -->
-                            <div class="transporte-panel" id="panel-auto">
-                                <div class="transporte-ruta">
-                                    <div class="ruta-paso">
-                                        <div class="paso-numero">1</div>
-                                        <div class="paso-texto">
-                                            <strong>Mandate por Autopista Costanera Norte</strong>
-                                            <span>Tomai la salida hacia Quilicura / Ruta 68 🛣️</span>
-                                        </div>
-                                        <span class="paso-tiempo">~20 min</span>
-                                    </div>
-                                    <div class="ruta-paso">
-                                        <div class="paso-numero">2</div>
-                                        <div class="paso-texto">
-                                            <strong>Doblai en Av. Manuel Antonio Matta</strong>
-                                            <span>Seguí hasta llegar a Manuel Antonio Matta 1269 🚗</span>
-                                        </div>
-                                        <span class="paso-tiempo">5 min</span>
-                                    </div>
-                                    <div class="ruta-paso">
-                                        <div class="paso-numero">3</div>
-                                        <div class="paso-texto">
-                                            <strong>Buscai estacionamiento</strong>
-                                            <span>Hay caleta de parqueo en la zona, tranqui 😎</span>
-                                        </div>
-                                        <span class="paso-tiempo">¡Listo! 🅿️</span>
-                                    </div>
-                                </div>
-                                <div class="llegar-tip">
-                                    <span class="emoji">🚗</span>
-                                    <div class="llegar-tip-texto">
-                                        <strong>Tip del Copete:</strong> Si vas a tomar, deja el auto en la casa y toma Uber/Taxi. ¡Así disfrutai sin preocupaciones! 🍻
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- PANEL APPS -->
-                            <div class="transporte-panel" id="panel-apps">
-                                <div class="transporte-ruta">
-                                    <div class="ruta-paso">
-                                        <div class="paso-numero">1</div>
-                                        <div class="paso-texto">
-                                            <strong>Abrí la app</strong>
-                                            <span>Uber, Didi, Cabify, Beat... ¡la que más te acomode! 📱</span>
-                                        </div>
-                                        <span class="paso-tiempo">30 seg</span>
-                                    </div>
-                                    <div class="ruta-paso">
-                                        <div class="paso-numero">2</div>
-                                        <div class="paso-texto">
-                                            <strong>Poné de destino:</strong>
-                                            <span>"La Comadre Lola, Manuel Antonio Matta 1269, Quilicura" 🎯</span>
-                                        </div>
-                                        <span class="paso-tiempo">~15 min</span>
-                                    </div>
-                                    <div class="ruta-paso">
-                                        <div class="paso-numero">3</div>
-                                        <div class="paso-texto">
-                                            <strong>¡Subite y relajate!</strong>
-                                            <span>El conductor te deja en la puerta, como rey/reina 👑</span>
-                                        </div>
-                                        <span class="paso-tiempo">¡Llegaste! 🎉</span>
-                                    </div>
-                                </div>
-                                <div class="llegar-tip">
-                                    <span class="emoji">💰</span>
-                                    <div class="llegar-tip-texto">
-                                        <strong>Dato Choro:</strong> Desde el centro son como $8.000 - $12.000. ¡Partí la cuenta con los cabros y sale regalado! 💸
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="llegar-action">
-                            <a href="https://maps.app.goo.gl/UAciRCPnoSR9yQ7M9" target="_blank" class="btn-como-llegar">
-                                <span class="emoji-left">📍</span>
-                                <span>¡Abrime en Maps al Tiro!</span>
-                                <span class="emoji-right">🗺️</span>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="map-wrapper">
-                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3332.032214508081!2d-70.7371189234199!3d-33.36980997341913!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9662c1320625347d%3A0x24a9fb19f593c6e!2sLo%20Cruzat%20411%2C%20Quilicura%2C%20Regi%C3%B3n%20Metropolitana!5e0!3m2!1ses-419!2scl!4v1772400000000!5m2!1ses-419!2scl" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                    </div>
-                </div>
-            </section>
-            
-        </div>
+  <section id="inicio" class="hero" aria-label="Sección principal">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-overlay" aria-hidden="true"></div>
+    <div class="hero-particles" aria-hidden="true"></div>
+    <div class="hero-content">
+      <img src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772144927/logo_antiguo_blanco_hlqj58.png" alt="La Comadre Lola" class="hero-logo" width="380" height="160">
+      <div class="hero-badge">Restaurant - Bar - Eventos - Quilicura</div>
+      <h1 class="hero-title">LA COMADRE <span>LOLA</span></h1>
+      <p class="hero-subtitle">Gastronomia - Shows en Vivo - El Mejor Carrete</p>
+      <div class="hero-cta">
+        <a href="#reservas" class="btn-primary">&#x1F389; RESERVA AHORA</a>
+        <a href="#eventos"  class="btn-secondary">&#x1F3A4; Ver Eventos</a>
+      </div>
     </div>
-    
-    <footer class="footer">
-        <p class="footer-text">© 2026 La Comadre Lola. Todos los derechos reservados.</p>
+    <div class="hero-scroll" aria-hidden="true">
+      <span>SCROLL</span>
+      <div class="hero-scroll-line"></div>
+    </div>
+  </section>
+
+  <section id="eventos" class="section" aria-labelledby="eventos-title">
+    <div class="section-inner">
+      <header class="section-header reveal">
+        <span class="section-label">&#x1F3A4; Próximos Eventos</span>
+        <h2 id="eventos-title" class="section-title">CARTELERA DE <span>EVENTOS</span></h2>
+        <p class="section-desc">Los mejores artistas nacionales en vivo. ¡No te pierdas ninguno!</p>
+        <div class="section-divider"></div>
+      </header>
+      <div class="events-grid" role="list">
+
+        <article class="event-card reveal reveal-d1 card-3d" role="listitem">
+          <div class="event-img-wrap">
+            <img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772386173/Captura_de_pantalla_2026-03-01_142736_tpeial.png" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Sunset Sessions" class="event-img" loading="lazy">
+            <div class="event-img-overlay"></div>
+            <span class="event-badge">¡PRÓXIMO!</span>
+          </div>
+          <div class="event-body">
+            <div class="event-genre">&#x25CF; House - Deep House</div>
+            <h3 class="event-name">Sunset Sessions</h3>
+            <div class="event-meta">
+              <span class="event-meta-item">&#x1F4C5; Viernes 18 Jul - 22:00</span>
+              <span class="event-meta-item">&#x1F4CD; Quilicura</span>
+            </div>
+            <a href="#reservas" class="event-btn">&#x1F39F; Comprar Entradas</a>
+          </div>
+        </article>
+
+        <article class="event-card reveal reveal-d2 card-3d" role="listitem">
+          <div class="event-img-wrap">
+            <img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772386172/Captura_de_pantalla_2026-03-01_142910_amyn6w.png" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Noche de Bandas" class="event-img" loading="lazy">
+            <div class="event-img-overlay"></div>
+            <span class="event-badge">AGOTANDOSE</span>
+          </div>
+          <div class="event-body">
+            <div class="event-genre">&#x25CF; Rock - Pop Nacional</div>
+            <h3 class="event-name">Noche de Bandas</h3>
+            <div class="event-meta">
+              <span class="event-meta-item">&#x1F4C5; Sábado 26 Jul - 21:00</span>
+              <span class="event-meta-item">&#x1F4CD; Quilicura</span>
+            </div>
+            <a href="#reservas" class="event-btn">&#x1F39F; Comprar Entradas</a>
+          </div>
+        </article>
+
+        <article class="event-card reveal reveal-d3 card-3d" role="listitem">
+          <div class="event-img-wrap">
+            <img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384756/IMG_5076_hex95q.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Carrete La Comadre" class="event-img" loading="lazy">
+            <div class="event-img-overlay"></div>
+            <span class="event-badge">NUEVO</span>
+          </div>
+          <div class="event-body">
+            <div class="event-genre">&#x25CF; Cumbia - Folclor</div>
+            <h3 class="event-name">Carrete La Comadre</h3>
+            <div class="event-meta">
+              <span class="event-meta-item">&#x1F4C5; Domingo 27 Jul - 14:00</span>
+              <span class="event-meta-item">&#x1F4CD; Quilicura</span>
+            </div>
+            <a href="#reservas" class="event-btn">&#x1F39F; Comprar Entradas</a>
+          </div>
+        </article>
+
+        <article class="event-card reveal reveal-d4 card-3d" role="listitem">
+          <div class="event-img-wrap">
+            <img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384756/IMG_9819_up1rqy.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Noche de Tributos" class="event-img" loading="lazy">
+            <div class="event-img-overlay"></div>
+            <span class="event-badge">MUY PRONTO</span>
+          </div>
+          <div class="event-body">
+            <div class="event-genre">&#x25CF; Tributos - Cover Bands</div>
+            <h3 class="event-name">Noche de Tributos</h3>
+            <div class="event-meta">
+              <span class="event-meta-item">&#x1F4C5; Viernes 1 Ago - 22:00</span>
+              <span class="event-meta-item">&#x1F4CD; Quilicura</span>
+            </div>
+            <a href="#reservas" class="event-btn">&#x1F39F; Comprar Entradas</a>
+          </div>
+        </article>
+
+        <article class="event-card reveal reveal-d5 card-3d" role="listitem">
+          <div class="event-img-wrap">
+            <img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384757/IMG_6534_ez2yuu.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Fiesta Criolla" class="event-img" loading="lazy">
+            <div class="event-img-overlay"></div>
+            <span class="event-badge">ESPECIAL</span>
+          </div>
+          <div class="event-body">
+            <div class="event-genre">&#x25CF; Folclor - Cueca</div>
+            <h3 class="event-name">Fiesta Criolla</h3>
+            <div class="event-meta">
+              <span class="event-meta-item">&#x1F4C5; Sábado 2 Ago - 20:00</span>
+              <span class="event-meta-item">&#x1F4CD; Quilicura</span>
+            </div>
+            <a href="#reservas" class="event-btn">&#x1F39F; Comprar Entradas</a>
+          </div>
+        </article>
+
+        <article class="event-card reveal reveal-d6 card-3d" role="listitem">
+          <div class="event-img-wrap">
+            <img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772386173/Captura_de_pantalla_2026-03-01_142736_tpeial.png" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Open Mic Night" class="event-img" loading="lazy">
+            <div class="event-img-overlay"></div>
+            <span class="event-badge">GRATIS</span>
+          </div>
+          <div class="event-body">
+            <div class="event-genre">&#x25CF; Open Mic - Talentos</div>
+            <h3 class="event-name">Open Mic Night</h3>
+            <div class="event-meta">
+              <span class="event-meta-item">&#x1F4C5; Miércoles 6 Ago - 19:00</span>
+              <span class="event-meta-item">&#x1F4CD; Quilicura</span>
+            </div>
+            <a href="#reservas" class="event-btn">&#x1F3A4; Inscribirse</a>
+          </div>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="artistas" class="section" aria-labelledby="artistas-title">
+    <div class="section-inner">
+      <header class="section-header reveal">
+        <span class="section-label">&#x1F3B8; Artistas</span>
+        <h2 id="artistas-title" class="section-title">ARTISTAS <span>DESTACADOS</span></h2>
+        <p class="section-desc">Algunos de los increíbles artistas que han pasado por nuestro escenario.</p>
+        <div class="section-divider"></div>
+      </header>
+      <div class="artists-grid" role="list">
+        <div class="artist-card reveal reveal-d1" role="listitem" tabindex="0">
+          <img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384756/IMG_5076_hex95q.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Los Típicos del Ritmo" class="artist-img" loading="lazy">
+          <div class="artist-overlay"><div class="artist-name">Los Típicos del Ritmo</div><div class="artist-genre">Cumbia</div></div>
+          <div class="artist-label-always"><div class="artist-name">Los Típicos del Ritmo</div><div class="artist-genre">Cumbia</div></div>
+        </div>
+        <div class="artist-card reveal reveal-d2" role="listitem" tabindex="0">
+          <img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384756/IMG_9819_up1rqy.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Banda Folclórica Sur" class="artist-img" loading="lazy">
+          <div class="artist-overlay"><div class="artist-name">Banda Folclórica Sur</div><div class="artist-genre">Folclor - Cueca</div></div>
+          <div class="artist-label-always"><div class="artist-name">Banda Folclórica Sur</div><div class="artist-genre">Folclor - Cueca</div></div>
+        </div>
+        <div class="artist-card reveal reveal-d3" role="listitem" tabindex="0">
+          <img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384757/IMG_6534_ez2yuu.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="DJ Sunset" class="artist-img" loading="lazy">
+          <div class="artist-overlay"><div class="artist-name">DJ Sunset</div><div class="artist-genre">House - Electronic</div></div>
+          <div class="artist-label-always"><div class="artist-name">DJ Sunset</div><div class="artist-genre">House - Electronic</div></div>
+        </div>
+        <div class="artist-card reveal reveal-d4" role="listitem" tabindex="0">
+          <img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772386173/Captura_de_pantalla_2026-03-01_142736_tpeial.png" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Rock en Vivo" class="artist-img" loading="lazy">
+          <div class="artist-overlay"><div class="artist-name">Rock en Vivo</div><div class="artist-genre">Rock - Pop Nacional</div></div>
+          <div class="artist-label-always"><div class="artist-name">Rock en Vivo</div><div class="artist-genre">Rock - Pop Nacional</div></div>
+        </div>
+        <div class="artist-card reveal reveal-d5" role="listitem" tabindex="0">
+          <img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772386172/Captura_de_pantalla_2026-03-01_142910_amyn6w.png" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Los Cuequeros" class="artist-img" loading="lazy">
+          <div class="artist-overlay"><div class="artist-name">Los Cuequeros</div><div class="artist-genre">Cueca - Tradicional</div></div>
+          <div class="artist-label-always"><div class="artist-name">Los Cuequeros</div><div class="artist-genre">Cueca - Tradicional</div></div>
+        </div>
+        <div class="artist-card reveal reveal-d6" role="listitem" tabindex="0">
+          <img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384756/IMG_5076_hex95q.jpg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Cumbia Total" class="artist-img" loading="lazy">
+          <div class="artist-overlay"><div class="artist-name">Cumbia Total</div><div class="artist-genre">Cumbia - Salsa</div></div>
+          <div class="artist-label-always"><div class="artist-name">Cumbia Total</div><div class="artist-genre">Cumbia - Salsa</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="timeline" class="section" aria-labelledby="timeline-title">
+    <div class="section-inner">
+      <header class="section-header reveal">
+        <span class="section-label">&#x1F4C5; Agenda</span>
+        <h2 id="timeline-title" class="section-title">AGENDA DE <span>EVENTOS</span></h2>
+        <p class="section-desc">Vista rápida de lo que viene. ¡Marca tus fechas!</p>
+        <div class="section-divider"></div>
+      </header>
+      <div class="timeline-scroll reveal">
+        <div class="timeline-track">
+          <div class="timeline-item"><div class="timeline-dot cat-música"></div><div class="timeline-card"><div class="timeline-date">VIE 18 JUL</div><div class="timeline-name">Sunset Sessions</div><div class="timeline-type">&#x1F3B5; House</div></div></div>
+          <div class="timeline-item"><div class="timeline-dot cat-carrete"></div><div class="timeline-card"><div class="timeline-date">SAB 19 JUL</div><div class="timeline-name">Noche Latina</div><div class="timeline-type">&#x1F574; Cumbia</div></div></div>
+          <div class="timeline-item"><div class="timeline-dot cat-música"></div><div class="timeline-card"><div class="timeline-date">SAB 26 JUL</div><div class="timeline-name">Noche de Bandas</div><div class="timeline-type">&#x1F3B8; Rock</div></div></div>
+          <div class="timeline-item"><div class="timeline-dot cat-comida"></div><div class="timeline-card"><div class="timeline-date">DOM 27 JUL</div><div class="timeline-name">Carrete La Comadre</div><div class="timeline-type">&#x1F32E; Folclor</div></div></div>
+          <div class="timeline-item"><div class="timeline-dot cat-música"></div><div class="timeline-card"><div class="timeline-date">VIE 1 AGO</div><div class="timeline-name">Noche de Tributos</div><div class="timeline-type">&#x1F3A4; Tributos</div></div></div>
+          <div class="timeline-item"><div class="timeline-dot cat-especial"></div><div class="timeline-card"><div class="timeline-date">SAB 2 AGO</div><div class="timeline-name">Fiesta Criolla</div><div class="timeline-type">&#x1F31F; Especial</div></div></div>
+          <div class="timeline-item"><div class="timeline-dot cat-carrete"></div><div class="timeline-card"><div class="timeline-date">MIE 6 AGO</div><div class="timeline-name">Open Mic Night</div><div class="timeline-type">&#x1F3A4; Talentos</div></div></div>
+          <div class="timeline-item"><div class="timeline-dot cat-música"></div><div class="timeline-card"><div class="timeline-date">VIE 8 AGO</div><div class="timeline-name">DJ Night</div><div class="timeline-type">&#x1F3B6; Electronic</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="vip" class="section" aria-labelledby="vip-title">
+    <div class="section-inner">
+      <header class="section-header reveal">
+        <span class="section-label">&#x2B50; Premium</span>
+        <h2 id="vip-title" class="section-title">EXPERIENCIA <span>VIP</span></h2>
+        <p class="section-desc">Eleva tu experiencia en La Comadre Lola con nuestros paquetes exclusivos.</p>
+        <div class="section-divider"></div>
+      </header>
+      <div class="vip-grid">
+        <div class="vip-card gold reveal reveal-d1 card-3d">
+          <div class="vip-badge">&#x1F947;</div>
+          <div class="vip-tier">Gold</div>
+          <div class="vip-price">$29.990 <span>CLP</span></div>
+          <div class="vip-period">por persona / evento</div>
+          <ul class="vip-benefits">
+            <li class="vip-benefit">Mesa reservada prioritaria</li>
+            <li class="vip-benefit">1 trago de bienvenida</li>
+            <li class="vip-benefit">Acceso anticipado al evento</li>
+            <li class="vip-benefit">Descuento 10% en carta</li>
+          </ul>
+          <a href="#reservas" class="vip-btn">Contratar Gold</a>
+        </div>
+        <div class="vip-card platinum reveal reveal-d2 card-3d">
+          <div class="vip-popular">MAS POPULAR</div>
+          <div class="vip-badge">&#x1F48E;</div>
+          <div class="vip-tier">Platinum</div>
+          <div class="vip-price">$54.990 <span>CLP</span></div>
+          <div class="vip-period">por persona / evento</div>
+          <ul class="vip-benefits">
+            <li class="vip-benefit">Mesa VIP zona preferencial</li>
+            <li class="vip-benefit">Botella de espumante incluida</li>
+            <li class="vip-benefit">Tabla de picoteo de bienvenida</li>
+            <li class="vip-benefit">Acceso backstage</li>
+            <li class="vip-benefit">Descuento 20% en carta</li>
+            <li class="vip-benefit">Foto con el artista</li>
+          </ul>
+          <a href="#reservas" class="vip-btn">Contratar Platinum</a>
+        </div>
+        <div class="vip-card diamond reveal reveal-d3 card-3d">
+          <div class="vip-badge">&#x1F4A0;</div>
+          <div class="vip-tier">Diamond</div>
+          <div class="vip-price">$99.990 <span>CLP</span></div>
+          <div class="vip-period">hasta 8 personas / evento</div>
+          <ul class="vip-benefits">
+            <li class="vip-benefit">Cabina VIP privada</li>
+            <li class="vip-benefit">Open bar premium 3 horas</li>
+            <li class="vip-benefit">Tabla de picoteo completa</li>
+            <li class="vip-benefit">Acceso exclusivo backstage</li>
+            <li class="vip-benefit">Meet &amp; Greet con artista</li>
+            <li class="vip-benefit">Foto y autografo</li>
+            <li class="vip-benefit">Invitacion al proximo evento</li>
+          </ul>
+          <a href="#reservas" class="vip-btn">Contratar Diamond</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="galeria" class="section" aria-labelledby="galeria-title">
+    <div class="section-inner">
+      <header class="section-header reveal">
+        <span class="section-label">&#x1F4F8; Galería</span>
+        <h2 id="galeria-title" class="section-title">MOMENTOS <span>INOLVIDABLES</span></h2>
+        <p class="section-desc">Revive los mejores momentos de La Comadre Lola.</p>
+        <div class="section-divider"></div>
+      </header>
+      <div class="gallery-tabs" role="tablist">
+        <button class="gallery-tab active" data-filter="all"      role="tab" aria-selected="true">Todos</button>
+        <button class="gallery-tab"        data-filter="artistas" role="tab" aria-selected="false">Artistas</button>
+        <button class="gallery-tab"        data-filter="ambiente" role="tab" aria-selected="false">Ambiente</button>
+        <button class="gallery-tab"        data-filter="comida"   role="tab" aria-selected="false">Gastronomia</button>
+      </div>
+      <div class="gallery-grid" role="list">
+        <div class="gallery-item reveal"           data-cat="artistas" role="listitem" tabindex="0"><img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384756/IMG_5076_hex95q.jpg"        src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Artistas" class="gallery-img" loading="lazy"><div class="gallery-icon">&#x1F50D;</div></div>
+        <div class="gallery-item reveal reveal-d1" data-cat="ambiente" role="listitem" tabindex="0"><img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384756/IMG_9819_up1rqy.jpg"        src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Ambiente" class="gallery-img" loading="lazy"><div class="gallery-icon">&#x1F50D;</div></div>
+        <div class="gallery-item reveal reveal-d2" data-cat="artistas" role="listitem" tabindex="0"><img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384757/IMG_6534_ez2yuu.jpg"        src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Show en vivo" class="gallery-img" loading="lazy"><div class="gallery-icon">&#x1F50D;</div></div>
+        <div class="gallery-item reveal reveal-d3" data-cat="comida"   role="listitem" tabindex="0"><img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772386173/Captura_de_pantalla_2026-03-01_142736_tpeial.png" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Gastronomia" class="gallery-img" loading="lazy"><div class="gallery-icon">&#x1F50D;</div></div>
+        <div class="gallery-item reveal reveal-d4" data-cat="ambiente" role="listitem" tabindex="0"><img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772386172/Captura_de_pantalla_2026-03-01_142910_amyn6w.png" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Ambiente nocturno" class="gallery-img" loading="lazy"><div class="gallery-icon">&#x1F50D;</div></div>
+        <div class="gallery-item reveal reveal-d5" data-cat="artistas" role="listitem" tabindex="0"><img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384756/IMG_5076_hex95q.jpg"        src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Artistas en vivo" class="gallery-img" loading="lazy"><div class="gallery-icon">&#x1F50D;</div></div>
+        <div class="gallery-item reveal"           data-cat="comida"   role="listitem" tabindex="0"><img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384756/IMG_9819_up1rqy.jpg"        src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Gastronomia chilena" class="gallery-img" loading="lazy"><div class="gallery-icon">&#x1F50D;</div></div>
+        <div class="gallery-item reveal reveal-d1" data-cat="ambiente" role="listitem" tabindex="0"><img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384757/IMG_6534_ez2yuu.jpg"        src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Carrete" class="gallery-img" loading="lazy"><div class="gallery-icon">&#x1F50D;</div></div>
+        <div class="gallery-item reveal reveal-d2" data-cat="artistas" role="listitem" tabindex="0"><img data-src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772386172/Captura_de_pantalla_2026-03-01_142910_amyn6w.png" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Escenario" class="gallery-img" loading="lazy"><div class="gallery-icon">&#x1F50D;</div></div>
+      </div>
+    </div>
+    <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Visor de imagenes">
+      <button id="lbClose" class="lightbox-close" aria-label="Cerrar">&#x2715;</button>
+      <button id="lbPrev"  class="lightbox-nav lightbox-prev" aria-label="Anterior">&#x2039;</button>
+      <img id="lbImg" src="" alt="Foto ampliada" class="lightbox-img">
+      <button id="lbNext"  class="lightbox-nav lightbox-next" aria-label="Siguiente">&#x203A;</button>
+      <div id="lbCounter" class="lightbox-counter" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <section id="testimonios" class="section" aria-labelledby="testimonios-title">
+    <div class="section-inner">
+      <header class="section-header reveal">
+        <span class="section-label">&#x2B50; Reseñas</span>
+        <h2 id="testimonios-title" class="section-title">LO QUE DICEN <span>LOS COMPADRES</span></h2>
+        <div class="section-divider"></div>
+      </header>
+      <div class="testimonials-carousel reveal">
+        <div class="testimonials-track-wrap">
+          <div id="testimonialsTrack" class="testimonials-track" role="list">
+            <div class="testimonial-slide" role="listitem">
+              <div class="testimonial-card glass">
+                <div class="testimonial-stars" aria-label="5 estrellas">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2B50;</div>
+                <p class="testimonial-text">"El mejor lugar para carretear en Quilicura. La música en vivo es de primera, la comida una delicia y el ambiente increible."</p>
+                <div class="testimonial-author">
+                  <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#E8913A,#D4547B);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0" aria-hidden="true">&#x1F9D1;</div>
+                  <div><div class="testimonial-name">Sebastian Morales</div><div class="testimonial-role">&#x2B50; Cliente frecuente - Quilicura</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="testimonial-slide" role="listitem">
+              <div class="testimonial-card glass">
+                <div class="testimonial-stars" aria-label="5 estrellas">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2B50;</div>
+                <p class="testimonial-text">"Vinimos por el show de tributos y quedamos con la boca abierta. El sonido impecable, los artistas increíbles y la atención de primera."</p>
+                <div class="testimonial-author">
+                  <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#4ECDC4,#D4547B);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0" aria-hidden="true">&#x1F469;</div>
+                  <div><div class="testimonial-name">Valentina Castro</div><div class="testimonial-role">&#x1F3B8; Fanática de rock - Santiago</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="testimonial-slide" role="listitem">
+              <div class="testimonial-card glass">
+                <div class="testimonial-stars" aria-label="5 estrellas">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2B50;</div>
+                <p class="testimonial-text">"Celebramos el cumpleaños de mi mama aca y fue ESPECTACULAR. Reservamos el paquete VIP y lo valio cien por ciento."</p>
+                <div class="testimonial-author">
+                  <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#f0c040,#E8913A);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0" aria-hidden="true">&#x1F9D1;</div>
+                  <div><div class="testimonial-name">Rodrigo Espinoza</div><div class="testimonial-role">&#x1F389; Eventos familiares - Quilicura</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="testimonial-slide" role="listitem">
+              <div class="testimonial-card glass">
+                <div class="testimonial-stars" aria-label="5 estrellas">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2B50;</div>
+                <p class="testimonial-text">"La gastronomia me sorprendio muchisimo. Los sabores criollos autenticos y las porciones generosas. Combinado con la música en vivo, es unico."</p>
+                <div class="testimonial-author">
+                  <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#D4547B,#4ECDC4);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0" aria-hidden="true">&#x1F469;</div>
+                  <div><div class="testimonial-name">Catalina Munoz</div><div class="testimonial-role">&#x1F37D; Foodie - Santiago</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="testimonial-slide" role="listitem">
+              <div class="testimonial-card glass">
+                <div class="testimonial-stars" aria-label="5 estrellas">&#x2B50;&#x2B50;&#x2B50;&#x2B50;&#x2B50;</div>
+                <p class="testimonial-text">"Llevamos un grupo de 15 personas y nos atendieron de maravilla. El show de cumbia fue increible, bailamos toda la noche."</p>
+                <div class="testimonial-author">
+                  <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#E8913A,#4ECDC4);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0" aria-hidden="true">&#x1F9D1;</div>
+                  <div><div class="testimonial-name">Felipe Gonzalez</div><div class="testimonial-role">&#x1F574; Cumbiambero - Quilicura</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <nav class="testimonials-nav" aria-label="Controles carrusel">
+          <button id="testimonialsPrev" class="testimonials-btn" aria-label="Anterior">&#x2039;</button>
+          <div id="testimonialsDots" class="testimonials-dots" role="tablist"></div>
+          <button id="testimonialsNext" class="testimonials-btn" aria-label="Siguiente">&#x203A;</button>
+        </nav>
+      </div>
+    </div>
+  </section>
+
+  <section id="reservas" class="section" aria-labelledby="reservas-title">
+    <div class="section-inner">
+      <header class="section-header reveal">
+        <span class="section-label">&#x1F4C5; Reservas</span>
+        <h2 id="reservas-title" class="section-title">HAZ TU <span>RESERVA</span></h2>
+        <div class="section-divider"></div>
+      </header>
+      <div class="reservation-grid">
+        <div class="reservation-info reveal-left">
+          <h3>¿Listo para el mejor carrete?</h3>
+          <p>Reserva tu mesa o evento con anticipacion y asegura los mejores lugares para vivir la experiencia La Comadre Lola al maximo.</p>
+          <div class="reservation-highlights">
+            <div class="res-highlight"><div class="res-highlight-icon">&#x1F3A4;</div><span>Shows en vivo todos los fines de semana</span></div>
+            <div class="res-highlight"><div class="res-highlight-icon">&#x1F37D;</div><span>Gastronomia criolla de calidad</span></div>
+            <div class="res-highlight"><div class="res-highlight-icon">&#x1F389;</div><span>Eventos privados y cumpleaños</span></div>
+            <div class="res-highlight"><div class="res-highlight-icon">&#x2B50;</div><span>Paquetes VIP disponibles</span></div>
+          </div>
+        </div>
+        <div class="reveal-right">
+          <div class="reservation-form">
+            <form id="reservationForm" novalidate aria-label="Formulario de reserva">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="resName">Nombre *</label>
+                  <input id="resName" class="form-control" type="text" name="nombre" placeholder="Tu nombre completo" required autocomplete="name">
+                  <span class="form-error" role="alert"></span>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="resEmail">Email *</label>
+                  <input id="resEmail" class="form-control" type="email" name="email" placeholder="tu@email.com" required autocomplete="email">
+                  <span class="form-error" role="alert"></span>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="resPhone">Telefono *</label>
+                  <input id="resPhone" class="form-control" type="tel" name="telefono" placeholder="912345678" required autocomplete="tel">
+                  <span class="form-error" role="alert"></span>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="resPeople">Personas *</label>
+                  <input id="resPeople" class="form-control" type="number" name="personas" placeholder="Ej: 4" min="1" max="200" required>
+                  <span class="form-error" role="alert"></span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="resType">Tipo de Reserva *</label>
+                <select id="resType" class="form-control" name="tipo" required>
+                  <option value="" disabled selected>Selecciona una opcion</option>
+                  <option value="mesa">&#x1F37D; Mesa para cenar</option>
+                  <option value="evento">&#x1F389; Evento privado</option>
+                  <option value="vip-gold">&#x1F947; Paquete VIP Gold</option>
+                  <option value="vip-platinum">&#x1F48E; Paquete VIP Platinum</option>
+                  <option value="vip-diamond">&#x1F4A0; Paquete VIP Diamond</option>
+                  <option value="cumpleaños">&#x1F382; Cumpleaños</option>
+                </select>
+                <span class="form-error" role="alert"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="resDate">Fecha preferida *</label>
+                <input id="resDate" class="form-control" type="date" name="fecha" required>
+                <span class="form-error" role="alert"></span>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="resMsg">Mensaje adicional</label>
+                <textarea id="resMsg" class="form-control" name="mensaje" rows="3" placeholder="Alguna peticion especial, alergias, ocasion especial..."></textarea>
+              </div>
+              <button type="submit" class="form-submit">&#x1F389; Confirmar Reserva</button>
+            </form>
+            <div id="formSuccess" class="form-success" role="status" aria-live="polite">
+              &#x2705; ¡Reserva enviada exitosamente! Nos contactaremos contigo pronto. ¡Nos vemos en La Comadre Lola!
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="newsletter" class="section" aria-labelledby="newsletter-title">
+    <div class="section-inner">
+      <div class="newsletter-inner reveal-scale">
+        <div class="newsletter-icon">&#x1F3B8;</div>
+        <h2 id="newsletter-title" class="newsletter-title">¡ENTÉRATE DE TODOS LOS EVENTOS!</h2>
+        <p class="newsletter-desc">Suscribete y recibe en tu correo la agenda semanal, pre-ventas exclusivas y las mejores sorpresas de La Comadre Lola.</p>
+        <form id="newsletterForm" class="newsletter-form" novalidate>
+          <label for="newsletterEmail" class="sr-only">Email para suscripcion</label>
+          <input id="newsletterEmail" class="newsletter-input" type="email" name="email" placeholder="tu@email.com" required autocomplete="email">
+          <button type="submit" class="newsletter-btn">&#x1F514; Suscribirse</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section id="ubicacion" class="section" aria-labelledby="ubicacion-title">
+    <div class="section-inner">
+      <header class="section-header reveal">
+        <span class="section-label">&#x1F4CD; Visítanos</span>
+        <h2 id="ubicacion-title" class="section-title">¿CUÁNDO Y <span>CÓMO LLEGAR?</span></h2>
+        <div class="section-divider"></div>
+      </header>
+      <div class="location-grid">
+        <div class="hours-card reveal-left">
+          <div class="hours-header">
+            <h3 class="hours-header-title">&#x1F32E; HORARIOS DE ATENCIÓN &#x1F37B;</h3>
+          </div>
+          <div class="hours-status" id="hoursStatus" role="status" aria-live="polite">
+            <div class="status-dot" id="statusDot"></div>
+            <span class="status-text" id="statusText">Cargando...</span>
+          </div>
+          <p class="status-phrase" id="statusPhrase" aria-live="polite"></p>
+          <div class="hours-countdown" id="countdownWrap" style="display:none" aria-live="polite">
+            <div class="countdown-unit"><span class="countdown-num" id="cdH">00</span><span class="countdown-lbl">Hrs</span></div>
+            <div class="countdown-unit"><span class="countdown-num" id="cdM">00</span><span class="countdown-lbl">Min</span></div>
+            <div class="countdown-unit"><span class="countdown-num" id="cdS">00</span><span class="countdown-lbl">Seg</span></div>
+          </div>
+          <div class="hours-list" role="list">
+            <div class="hours-row" data-days="1,2" role="listitem"><span class="hours-day"><span class="emoji">&#x1F634;</span> Lunes - Martes</span><span class="hours-closed">CERRADO</span></div>
+            <div class="hours-row" data-days="3"   role="listitem"><span class="hours-day"><span class="emoji">&#x1F42B;</span> Miércoles</span><span class="hours-time">17:00 - 00:00</span></div>
+            <div class="hours-row" data-days="4"   role="listitem"><span class="hours-day"><span class="emoji">&#x1F37B;</span> Jueves</span><span class="hours-time">17:00 - 01:00</span></div>
+            <div class="hours-row" data-days="5,6" role="listitem"><span class="hours-day"><span class="emoji">&#x1F525;</span> Viernes - Sábado</span><span class="hours-time">13:00 - 02:00</span></div>
+            <div class="hours-row" data-days="0"   role="listitem"><span class="hours-day"><span class="emoji">&#x2600;&#xFE0F;</span> Domingo</span><span class="hours-time">13:00 - 19:00</span></div>
+          </div>
+          <div class="hours-action">
+            <a href="#reservas" class="btn-reserva">¡Reserva Al Tiro! &#x1F680;</a>
+          </div>
+        </div>
+        <div class="transport-card reveal-right">
+          <div class="transport-header">
+            <h3 class="transport-header-title">&#x1F5FA;&#xFE0F; ¿CÓMO LLEGAR? &#x1F687;</h3>
+          </div>
+          <div class="transport-tabs" role="tablist">
+            <button class="transport-tab active" data-panel="metro" role="tab" aria-selected="true"><span class="emoji">&#x1F687;</span><span>Metro</span></button>
+            <button class="transport-tab"        data-panel="micro" role="tab" aria-selected="false"><span class="emoji">&#x1F68C;</span><span>Micro</span></button>
+            <button class="transport-tab"        data-panel="auto"  role="tab" aria-selected="false"><span class="emoji">&#x1F697;</span><span>Auto</span></button>
+            <button class="transport-tab"        data-panel="apps"  role="tab" aria-selected="false"><span class="emoji">&#x1F4F1;</span><span>Apps</span></button>
+          </div>
+          <div class="transport-panels">
+            <div id="panel-metro" class="transport-panel active" role="tabpanel">
+              <div class="transport-steps">
+                <div class="transport-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Toma la Linea 3</div><div class="step-desc">Busca la Linea 3 del Metro</div><div class="step-time">~18 min desde el centro</div></div></div>
+                <div class="transport-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Bajate en Lo Cruzat</div><div class="step-desc">Estacion a pasitos de La Comadre</div><div class="step-time">2 min caminando</div></div></div>
+                <div class="transport-step"><div class="step-num">3</div><div class="step-body"><div class="step-title">¡Llegaste!</div><div class="step-desc">Manuel Antonio Matta 1269, Quilicura</div><div class="step-time">¡Te esperamos!</div></div></div>
+              </div>
+              <div class="transport-tip"><strong>Dato:</strong> Desde U. de Chile son solo 18 minutitos. ¡Mas rápido que la fila del Jumbo!</div>
+            </div>
+            <div id="panel-micro" class="transport-panel" role="tabpanel">
+              <div class="transport-steps">
+                <div class="transport-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Desde Plaza Quilicura</div><div class="step-desc">Toma cualquier micro por Manuel Antonio Matta</div><div class="step-time">~10 min</div></div></div>
+                <div class="transport-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Bajate en Matta</div><div class="step-desc">Te deja a la vuelta de la esquina</div><div class="step-time">¡Llegaste!</div></div></div>
+              </div>
+              <div class="transport-tip"><strong>Tip:</strong> Tambien puedes tomar Metro Lo Cruzat desde Plaza Quilicura. ¡Mas rápido que pedir la cuenta!</div>
+            </div>
+            <div id="panel-auto" class="transport-panel" role="tabpanel">
+              <div class="transport-steps">
+                <div class="transport-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Autopista Costanera Norte</div><div class="step-desc">Salida hacia Quilicura / Ruta 68</div><div class="step-time">~20 min</div></div></div>
+                <div class="transport-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Av. Manuel Antonio Matta</div><div class="step-desc">Sigue hasta el numero 1269</div><div class="step-time">5 min</div></div></div>
+              </div>
+              <div class="transport-tip"><strong>Tip:</strong> Si vas a tomar, deja el auto en casa y pide Uber. ¡Asi disfrutas sin preocupaciones!</div>
+            </div>
+            <div id="panel-apps" class="transport-panel" role="tabpanel">
+              <div class="transport-steps">
+                <div class="transport-step"><div class="step-num">1</div><div class="step-body"><div class="step-title">Abre la app</div><div class="step-desc">Uber, Didi, Cabify... ¡la que mas te acomode!</div><div class="step-time">30 seg</div></div></div>
+                <div class="transport-step"><div class="step-num">2</div><div class="step-body"><div class="step-title">Destino: La Comadre Lola</div><div class="step-desc">Manuel Antonio Matta 1269, Quilicura</div><div class="step-time">~15 min</div></div></div>
+              </div>
+              <div class="transport-tip"><strong>Dato:</strong> Desde el centro son ~$8.000-$12.000. ¡Parte la cuenta con los cabros!</div>
+            </div>
+          </div>
+          <div class="transport-action">
+            <a href="https://maps.app.goo.gl/UAciRCPnoSR9yQ7M9" target="_blank" rel="noopener noreferrer" class="btn-maps">&#x1F4CD; Abrir en Google Maps</a>
+          </div>
+        </div>
+      </div>
+      <div class="map-wrap reveal">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3332.032214508081!2d-70.7371189234199!3d-33.36980997341913!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9662c1320625347d%3A0x24a9fb19f593c6e!2sLo%20Cruzat%20411%2C%20Quilicura%2C%20Regi%C3%B3n%20Metropolitana!5e0!3m2!1ses-419!2scl!4v1772400000000!5m2!1ses-419!2scl" title="Mapa La Comadre Lola" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772144927/logo_antiguo_blanco_hlqj58.png" alt="La Comadre Lola" width="160" height="64">
+          <p>Restaurante, Bar y Eventos en el corazon de Quilicura, Santiago.</p>
+          <p style="margin-top:10px;font-size:13px;color:rgba(255,255,255,0.5)">&#x1F4CD; Manuel Antonio Matta 1269, Quilicura</p>
+          <div class="footer-social" role="list">
+            <a href="https://www.instagram.com/lacomadrelola"  target="_blank" rel="noopener noreferrer" class="footer-social-link" role="listitem" aria-label="Instagram">&#x1F4F7;</a>
+            <a href="https://www.facebook.com/lacomadrelola"   target="_blank" rel="noopener noreferrer" class="footer-social-link" role="listitem" aria-label="Facebook">&#x1F4D8;</a>
+            <a href="https://wa.me/56912345678"                target="_blank" rel="noopener noreferrer" class="footer-social-link" role="listitem" aria-label="WhatsApp">&#x1F4AC;</a>
+            <a href="https://www.tiktok.com/@lacomadrelola"    target="_blank" rel="noopener noreferrer" class="footer-social-link" role="listitem" aria-label="TikTok">&#x1F3B5;</a>
+          </div>
+        </div>
+        <div>
+          <div class="footer-col-title">Navegación</div>
+          <nav class="footer-links">
+            <a href="#inicio">Inicio</a>
+            <a href="#eventos">Eventos</a>
+            <a href="#artistas">Artistas</a>
+            <a href="#galeria">Galería</a>
+            <a href="#reservas">Reservas</a>
+            <a href="#ubicacion">Horarios</a>
+          </nav>
+        </div>
+        <div>
+          <div class="footer-col-title">Contacto</div>
+          <div class="footer-links">
+            <span style="color:rgba(255,255,255,0.5);font-size:13px">&#x1F4DE; +56 9 1234 5678</span>
+            <span style="color:rgba(255,255,255,0.5);font-size:13px">&#x1F4E7; hola@lacomadrelola.cl</span>
+            <span style="color:rgba(255,255,255,0.5);font-size:13px">&#x1F4CD; M.A. Matta 1269, Quilicura</span>
+            <a href="https://wa.me/56912345678" target="_blank" rel="noopener noreferrer" style="color:#25d366;font-weight:600;font-size:13px">&#x1F4AC; WhatsApp</a>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>&#x00A9; 2026 La Comadre Lola. Todos los derechos reservados.</span>
         <div class="footer-dev">
-            <span>Diseñado y desarrollado por</span>
-            <a href="https://www.tusitioya.cl" target="_blank">
-                <img src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772336072/Gemini_Generated_Image_th8p9ath8p9ath8p_1_utx5lw.png" alt="Logo Desarrollador" class="footer-logo-dev">
-            </a>
-            <span>Somos expertos en soluciones web escalables.</span>
+          <span>Diseñado por</span>
+          <a href="https://www.tusitioya.cl" target="_blank" rel="noopener noreferrer" aria-label="Desarrollador">
+            <img src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772336072/Gemini_Generated_Image_th8p9ath8p9ath8p_1_utx5lw.png" alt="Logo Desarrollador" class="footer-logo-dev" loading="lazy" height="28">
+          </a>
         </div>
-    </footer>
-    
-    <script>
-        // 0. GENERADOR DINÁMICO DE ROSAS Y PÉTALOS (Optimización)
-        function initRoseGarden() {
-            const container = document.getElementById('rose-garden-container');
-            const totalRoses = 80; // Total por lado
-            const totalPetals = 10; // Total por lado
-            
-            // Función para crear elementos cayendo por los bordes
-            function createFallingElement(className, symbol, isLeft, index, isPetal = false) {
-                const el = document.createElement('div');
-                el.className = `${className}`;
-                el.innerHTML = symbol;
-                
-                // Configuración aleatoria pero controlada para los bordes (0% a 2.5% del ancho)
-                const edgePosition = (Math.random() * 2.5).toFixed(1);
-                el.style[isLeft ? 'left' : 'right'] = `${edgePosition}%`;
-                
-                // Tiempos de animación aleatorios
-                const duration = (isPetal ? 13 : 17) + Math.random() * 12; // Entre 17 y 29s para rosas
-                const delay = -(Math.random() * 80); // Desfase inicial
-                const size = isPetal ? '' : (22 + Math.random() * 9).toFixed(0) + 'px'; // Tamaños variados
-                
-                el.style.animationDuration = `${duration}s`;
-                el.style.animationDelay = `${delay}s`;
-                if (!isPetal) el.style.fontSize = size;
-                
-                container.appendChild(el);
-            }
+      </div>
+    </div>
+  </footer>
 
-            // Generar Lado Izquierdo y Derecho
-            for(let i=0; i<totalRoses; i++) {
-                createFallingElement('rose', '🌹', true, i);
-                createFallingElement('rose', '🌹', false, i);
-            }
-            for(let i=0; i<totalPetals; i++) {
-                createFallingElement('petal', '', true, i, true);
-                createFallingElement('petal', '', false, i, true);
-            }
-        }
-        
-        // Inicializar el jardín al cargar
-        document.addEventListener('DOMContentLoaded', initRoseGarden);
+  <button class="scroll-top" aria-label="Volver arriba">&#x2191;</button>
 
-        // 1. CHATBOT DE RESERVAS SIMPLIFICADO
-        let reservationData = { tipo: '', personas: '', fecha: '' };
-        let currentStep = 1;
-        
-        function selectOption(step, value, label) {
-            reservationData.tipo = value;
-            addUserMessage(label);
-            document.getElementById(`step${step}`).style.display = 'none';
-            setTimeout(() => { currentStep++; showNextStep(currentStep); }, 600);
-        }
-        
-        function addUserMessage(text) {
-            const container = document.getElementById('chatMessages');
-            container.innerHTML += `<div class="chat-message user"><div class="chat-avatar user">😊</div><div class="chat-bubble">${text}</div></div>`;
-            container.scrollTop = container.scrollHeight;
-        }
-        
-        function showNextStep(step) {
-            const container = document.getElementById('chatMessages');
-            let msg = step === 2 ? '¿Para cuántas personas y en qué fecha? (Ej: 4 personas el viernes)' : '¡Perfecto! Déjanos tu Nombre y Teléfono.';
-            container.innerHTML += `<div class="chat-message"><div class="chat-avatar">🌮</div><div class="chat-bubble">${msg}</div></div>`;
-            container.scrollTop = container.scrollHeight;
-        }
-        
-        function sendMessage() {
-            const input = document.getElementById('chatInput');
-            const value = input.value.trim();
-            if (!value) return;
-            addUserMessage(value);
-            input.value = '';
-            
-            setTimeout(() => {
-                if (currentStep === 2) {
-                    reservationData.personas = value;
-                    currentStep++; showNextStep(currentStep);
-                } else if (currentStep === 3) {
-                    const container = document.getElementById('chatMessages');
-                    // Mantiene el flujo hacia WhatsApp
-                    const textEncoded = encodeURIComponent(`Hola! Quiero reservar: ${reservationData.tipo}. Detalle: ${reservationData.personas}. Datos: ${value}`);
-                    container.innerHTML += `<div class="chat-message"><div class="chat-avatar">🌮</div><div class="chat-bubble"><strong>¡Todo listo! 🎉</strong><br><br><a href="https://wa.me/569XXXXXXXX?text=${textEncoded}" target="_blank" style="color: #00FF7F; text-decoration: none; font-weight: bold;">📱 Click aquí para confirmar por WhatsApp</a></div></div>`;
-                    container.scrollTop = container.scrollHeight;
-                }
-            }, 600);
-        }
-
-        // 2. FONDO ESTÁTICO CON OVERLAY OSCURO
-        // El fondo ahora es una imagen fija con overlay para destacar las tarjetas
-
-        // 3. CARRUSEL TIPO CINE - EVENTOS DESTACADOS
-        let cineCurrentSlide = 0;
-        const cineSlides = document.querySelectorAll('.cine-slide');
-        const cineDots = document.querySelectorAll('.cine-dot');
-        
-        function goToSlide(index) {
-            cineSlides[cineCurrentSlide].classList.remove('active');
-            cineDots[cineCurrentSlide].classList.remove('active');
-            cineCurrentSlide = index;
-            cineSlides[cineCurrentSlide].classList.add('active');
-            cineDots[cineCurrentSlide].classList.add('active');
-        }
-        
-        function nextCineSlide() {
-            goToSlide((cineCurrentSlide + 1) % cineSlides.length);
-        }
-        
-        setInterval(nextCineSlide, 5000);
-
-        // ========== TARJETA CÓMO LLEGAR INTERACTIVA ==========
-        function cambiarTransporte(tipo, boton) {
-            // Quitar active de todos los tabs
-            document.querySelectorAll('.transporte-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            // Agregar active al tab clickeado
-            boton.classList.add('active');
-            
-            // Ocultar todos los paneles
-            document.querySelectorAll('.transporte-panel').forEach(panel => {
-                panel.classList.remove('active');
-            });
-            // Mostrar el panel correspondiente
-            document.getElementById('panel-' + tipo).classList.add('active');
-        }
-
-        // ========== TARJETA DE HORARIOS INTERACTIVA CHILENA ==========
-        (function initHorariosCard() {
-            const frasesAbiertas = [
-                { texto: "¡Estamos <span>carreteando</span>! Pasa nomás caleta 🔥", emoji: "🍻" },
-                { texto: "¡<span>Ven po</span> que te guardamos mesa! 🪑", emoji: "🌮" },
-                { texto: "¡La <span>chela</span> está helá! 🍺", emoji: "❄️" },
-                { texto: "¡Hoy día estamos <span>terribles de choros</span>! 💯", emoji: "🔥" },
-                { texto: "¡Pasa que estamos <span>bacanes</span>! ✨", emoji: "😎" },
-                { texto: "¡La <span>weá</span> está buena, ven po! 🎉", emoji: "💃" },
-                { texto: "¡Estamos con <span>ganas de atenderte</span>! 🌮", emoji: "🍽️" },
-                { texto: "¡Estamos <span>filete</span>! Entra nomás 👌", emoji: "✨" },
-                { texto: "¡Ven a <span>tomarte unas</span> con nosotros! 🍺", emoji: "🤝" }
-            ];
-            
-            const frasesCerradas = [
-                { texto: "Ya <span>cerramos la piocha</span>... 😴", emoji: "🌙" },
-                { texto: "Estamos <span>recargando baterías</span> pa la otra 🔋", emoji: "⚡" },
-                { texto: "La <span>comadre</span> está roncando... 💤", emoji: "😪" },
-                { texto: "Volvemos <span>al tiro</span>, no te desesperíiis! ⏰", emoji: "🕒" },
-                { texto: "Estamos <span>sobrios</span> todavía... 🍷", emoji: "😅" },
-                { texto: "¡<span>Aguanta</span> las papas que volvemos! 🥔", emoji: "💪" },
-                { texto: "Cerrao. <span>Volve</span> cuando abramos nomás 🚪", emoji: "👋" },
-                { texto: "Estamos <span>apurando</span> la pega, ya abrimos 💼", emoji: "🔨" }
-            ];
-            
-            function actualizarEstado() {
-                const ahora = new Date();
-                const dia = ahora.getDay(); // 0=Dom, 1=Lun, ..., 6=Sab
-                const hora = ahora.getHours();
-                const minutos = ahora.getMinutes();
-                const minutosTotales = hora * 60 + minutos;
-                
-                let abierto = false;
-                let targetTime = null;
-                let mensajeCountdown = "";
-                
-                // Lunes (1) y Martes (2): Cerrado
-                if (dia === 1 || dia === 2) {
-                    abierto = false;
-                    // Próxima apertura: Miércoles 17:00
-                    let diasHastaMiercoles = 3 - dia;
-                    targetTime = new Date(ahora);
-                    targetTime.setDate(targetTime.getDate() + diasHastaMiercoles);
-                    targetTime.setHours(17, 0, 0, 0);
-                    mensajeCountdown = "¡Estamos filete, abrimos el miércoles!";
-                }
-                // Miércoles (3): 17:00 - 00:00
-                else if (dia === 3) {
-                    const apertura = 17 * 60; // 17:00
-                    const cierre = 24 * 60;   // 00:00
-                    
-                    if (minutosTotales >= apertura && minutosTotales < cierre) {
-                        abierto = true;
-                        targetTime = new Date(ahora);
-                        targetTime.setHours(24, 0, 0, 0); // Medianoche
-                        mensajeCountdown = "Nos queda poco tiempo de carrete:";
-                    } else {
-                        abierto = false;
-                        targetTime = new Date(ahora);
-                        targetTime.setHours(17, 0, 0, 0);
-                        mensajeCountdown = "¡Ya po, falta poco pa que abramos!";
-                    }
-                }
-                // Jueves (4): 17:00 - 01:00
-                else if (dia === 4) {
-                    const apertura = 17 * 60; // 17:00
-                    const cierre = 25 * 60;   // 01:00 (del día siguiente)
-                    
-                    if (minutosTotales >= apertura && minutosTotales < 24 * 60) {
-                        // Entre las 17:00 y medianoche
-                        abierto = true;
-                        targetTime = new Date(ahora);
-                        targetTime.setDate(targetTime.getDate() + 1);
-                        targetTime.setHours(1, 0, 0, 0);
-                        mensajeCountdown = "Seguimos con el carrete:";
-                    } else if (minutosTotales < apertura) {
-                        // Antes de las 17:00
-                        abierto = false;
-                        targetTime = new Date(ahora);
-                        targetTime.setHours(17, 0, 0, 0);
-                        mensajeCountdown = "¡Aguanta, hoy abrimos!";
-                    } else {
-                        // Entre medianoche y 01:00
-                        abierto = true;
-                        targetTime = new Date(ahora);
-                        targetTime.setHours(1, 0, 0, 0);
-                        mensajeCountdown = "Últimos minutos de carrete:";
-                    }
-                }
-                // Viernes (5): 13:00 - 02:00 (del sábado)
-                else if (dia === 5) {
-                    const apertura = 13 * 60; // 13:00
-                    
-                    if (minutosTotales >= apertura) {
-                        // Después de las 13:00
-                        abierto = true;
-                        targetTime = new Date(ahora);
-                        targetTime.setDate(targetTime.getDate() + 1);
-                        targetTime.setHours(2, 0, 0, 0);
-                        mensajeCountdown = "¡Viernes de carrete sin límite!";
-                    } else {
-                        // Antes de las 13:00
-                        abierto = false;
-                        targetTime = new Date(ahora);
-                        targetTime.setHours(13, 0, 0, 0);
-                        mensajeCountdown = "¡Ya po, falta noma pa empezar!";
-                    }
-                }
-                // Sábado (6): 13:00 - 02:00 (del domingo)
-                else if (dia === 6) {
-                    const apertura = 13 * 60; // 13:00
-                    
-                    if (minutosTotales >= apertura) {
-                        // Después de las 13:00
-                        abierto = true;
-                        targetTime = new Date(ahora);
-                        targetTime.setDate(targetTime.getDate() + 1);
-                        targetTime.setHours(2, 0, 0, 0);
-                        mensajeCountdown = "¡Sábado de puro carrete!";
-                    } else {
-                        // Entre 00:00 y 13:00 (después de cerrar el viernes)
-                        abierto = false;
-                        targetTime = new Date(ahora);
-                        targetTime.setHours(13, 0, 0, 0);
-                        mensajeCountdown = "¡Ya despertamos, abrimos al tiro!";
-                    }
-                }
-                // Domingo (0): 13:00 - 19:00
-                else if (dia === 0) {
-                    const apertura = 13 * 60; // 13:00
-                    const cierre = 19 * 60;   // 19:00
-                    
-                    if (minutosTotales >= apertura && minutosTotales < cierre) {
-                        abierto = true;
-                        targetTime = new Date(ahora);
-                        targetTime.setHours(19, 0, 0, 0);
-                        mensajeCountdown = "Todavía estamos filete:";
-                    } else if (minutosTotales < apertura) {
-                        abierto = false;
-                        targetTime = new Date(ahora);
-                        targetTime.setHours(13, 0, 0, 0);
-                        mensajeCountdown = "¡Ya despertamos, abrimos almuerzo!";
-                    } else {
-                        // Después de las 19:00
-                        abierto = false;
-                        // Próxima apertura: Miércoles 17:00
-                        targetTime = new Date(ahora);
-                        targetTime.setDate(targetTime.getDate() + 3); // Miércoles
-                        targetTime.setHours(17, 0, 0, 0);
-                        mensajeCountdown = "¡Nos vemos el miércoles, que estés bacán!";
-                    }
-                }
-                
-                // Actualizar UI
-                const estadoIndicator = document.getElementById('estadoIndicator');
-                const estadoTexto = document.getElementById('estadoTexto');
-                const fraseChilena = document.getElementById('fraseChilena');
-                const countdownHorarios = document.getElementById('countdownHorarios');
-                const countdownTexto = document.getElementById('countdownTexto');
-                
-                if (abierto) {
-                    estadoIndicator.className = 'estado-indicator abierto';
-                    estadoTexto.className = 'estado-texto abierto';
-                    estadoTexto.textContent = '¡ABIERTO!';
-                    const frase = frasesAbiertas[Math.floor(Math.random() * frasesAbiertas.length)];
-                    fraseChilena.innerHTML = frase.texto + ' ' + frase.emoji;
-                    countdownHorarios.style.display = 'flex';
-                    countdownTexto.textContent = mensajeCountdown;
-                } else {
-                    estadoIndicator.className = 'estado-indicator cerrado';
-                    estadoTexto.className = 'estado-texto cerrado';
-                    estadoTexto.textContent = 'CERRAO';
-                    const frase = frasesCerradas[Math.floor(Math.random() * frasesCerradas.length)];
-                    fraseChilena.innerHTML = frase.texto + ' ' + frase.emoji;
-                    countdownHorarios.style.display = 'flex';
-                    countdownTexto.textContent = mensajeCountdown;
-                }
-                
-                // Actualizar countdown
-                if (targetTime) {
-                    actualizarCountdown(targetTime);
-                }
-                
-                // Resaltar día actual
-                document.querySelectorAll('.horario-item').forEach(item => {
-                    const dias = item.getAttribute('data-dia');
-                    const textoDia = item.querySelector('.texto');
-                    if (dias && dias.split(',').includes(String(dia))) {
-                        textoDia.classList.add('hoy');
-                        item.style.background = 'rgba(232, 145, 58, 0.15)';
-                        item.style.borderRadius = '8px';
-                    }
-                });
-                
-                return { abierto, targetTime };
-            }
-            
-            function actualizarCountdown(targetTime) {
-                const ahora = new Date();
-                let diff = targetTime - ahora;
-                
-                if (diff < 0) {
-                    // Si ya pasó, recalcular
-                    actualizarEstado();
-                    return;
-                }
-                
-                const horas = Math.floor(diff / (1000 * 60 * 60));
-                const minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const segundos = Math.floor((diff % (1000 * 60)) / 1000);
-                
-                document.getElementById('cdHoras').textContent = String(horas).padStart(2, '0');
-                document.getElementById('cdMinutos').textContent = String(minutos).padStart(2, '0');
-                document.getElementById('cdSegundos').textContent = String(segundos).padStart(2, '0');
-            }
-            
-            // Inicializar
-            const estado = actualizarEstado();
-            
-            // Actualizar countdown cada segundo
-            setInterval(() => {
-                if (estado.targetTime) {
-                    actualizarCountdown(estado.targetTime);
-                }
-            }, 1000);
-            
-            // Recalcular estado cada minuto
-            setInterval(actualizarEstado, 60000);
-        })();
-    </script>
+  <script type="module" src="js/script.js"></script>
 </body>
 </html>
