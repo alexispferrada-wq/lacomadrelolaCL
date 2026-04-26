@@ -613,12 +613,7 @@
 /* ══════════════════════════════════════════════════════
    CONFIG — Update API_BASE_URL when you deploy the backend
 ══════════════════════════════════════════════════════ */
-const API_BASE_URL = (() => {
-  // Try localStorage override first (useful for testing)
-  const stored = localStorage.getItem('lola_api_url');
-  if (stored) return stored.replace(/\/$/, '');
-  return 'http://localhost:3001';
-})();
+const API_BASE_URL = 'http://localhost:3001';
 
 /* ══════════════════════════════════════════════════════
    STATE

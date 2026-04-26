@@ -151,7 +151,21 @@ async function loadHeroCarousel() {
     const ctaBtns  = heroContent.querySelector('.hero-cta');
 
     if (badge)    badge.textContent      = s.badge || '';
-    if (title)    title.innerHTML        = escHtml(s.title).replace(/LOLA/, '<span>LOLA</span>');
+    if (title) {
+      // Use DOM methods to safely set title text with a highlighted word span
+      title.textContent = '';
+      const titleText = String(s.title || '');
+      const lolaIdx   = titleText.indexOf('LOLA');
+      if (lolaIdx !== -1) {
+        title.appendChild(document.createTextNode(titleText.slice(0, lolaIdx)));
+        const span = document.createElement('span');
+        span.textContent = 'LOLA';
+        title.appendChild(span);
+        title.appendChild(document.createTextNode(titleText.slice(lolaIdx + 4)));
+      } else {
+        title.textContent = titleText;
+      }
+    }
     if (subtitle) subtitle.textContent   = s.subtitle || '';
     if (ctaBtns) {
       const [btnA, btnB] = ctaBtns.querySelectorAll('a');

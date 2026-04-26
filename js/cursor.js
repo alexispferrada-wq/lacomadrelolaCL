@@ -10,6 +10,8 @@ export function initMagneticCursor() {
   // Only on non-touch devices
   if (window.matchMedia('(pointer: coarse)').matches) return;
   if (typeof window === 'undefined') return;
+  // Respect reduced-motion preference
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const dot   = document.getElementById('cursor-dot');
   const ring  = document.getElementById('cursor-ring');

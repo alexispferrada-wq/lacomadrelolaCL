@@ -10,6 +10,7 @@ const express    = require('express');
 const cors       = require('cors');
 const bcrypt     = require('bcryptjs');
 const jwt        = require('jsonwebtoken');
+const rateLimit  = require('express-rate-limit');
 const { randomUUID } = require('crypto');
 const path       = require('path');
 const fs         = require('fs');
@@ -27,13 +28,49 @@ const CAROUSEL_FILE    = path.join(DATA_DIR, 'carousel.json');
 /* ── Config ── */
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || 'admin';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'LaComadre2026!';
-const JWT_SECRET     = process.env.JWT_SECRET     || 'fallback_dev_secret_change_me';
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '8h';
+
+// Require a proper JWT secret; generate a warning in development
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  if (process.env.NODE_ENV === 'production') {
+    console.error('FATAL: JWT_SECRET environment variable is required in production');
+    process.exit(1);
+  } else {
+    console.warn('WARNING: JWT_SECRET not set. Using an insecure default — do NOT deploy this to production!');
+  }
+}
+const EFFECTIVE_JWT_SECRET = JWT_SECRET || 'dev_only_insecure_secret_do_not_deploy';
+
+// Hash admin password once at startup for constant-time comparison
+const ADMIN_PASSWORD_HASH = bcrypt.hashSync(ADMIN_PASSWORD, 10);
 
 const rawOrigins = (process.env.CORS_ORIGINS || '').split(',').map(s => s.trim()).filter(Boolean);
 const ALLOWED_ORIGINS = rawOrigins.length
   ? rawOrigins
   : ['https://alexispferrada-wq.github.io', 'http://localhost:3000', 'http://127.0.0.1:5500'];
+
+/* ── Max reservation size constant ── */
+const MAX_RESERVATION_SIZE = 200;
+
+/* ── Rate limiters ── */
+// Strict limiter for the login endpoint to prevent brute-force attacks
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiados intentos. Espera 15 minutos.' },
+});
+
+// General limiter for all routes
+const generalLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas peticiones. Intenta más tarde.' },
+});
 
 /* ── Middleware ── */
 app.use(cors({
@@ -47,13 +84,18 @@ app.use(cors({
   credentials: true,
 }));
 app.options('*', cors());
+app.use(generalLimiter);
 app.use(express.json({ limit: '2mb' }));
 
 /* ── JSON helpers ── */
 function readJSON(file) {
   try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
-  } catch {
+    const raw = fs.readFileSync(file, 'utf8');
+    return JSON.parse(raw);
+  } catch (err) {
+    if (err.code !== 'ENOENT') {
+      console.error(`[readJSON] Error reading ${path.basename(file)}:`, err.message);
+    }
     return [];
   }
 }
@@ -69,7 +111,7 @@ function requireAuth(req, res, next) {
   if (!token) return res.status(401).json({ error: 'Token requerido' });
 
   try {
-    req.admin = jwt.verify(token, JWT_SECRET);
+    req.admin = jwt.verify(token, EFFECTIVE_JWT_SECRET);
     next();
   } catch {
     return res.status(401).json({ error: 'Token inválido o expirado' });
@@ -78,7 +120,14 @@ function requireAuth(req, res, next) {
 
 /* ── Validation helpers ── */
 function isValidEmail(email) {
-  return typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+  if (typeof email !== 'string') return false;
+  const trimmed = email.trim();
+  // Use a safe, linear-time check instead of a potentially slow regex
+  const at = trimmed.indexOf('@');
+  if (at < 1 || at !== trimmed.lastIndexOf('@')) return false;
+  const domain = trimmed.slice(at + 1);
+  const dot    = domain.lastIndexOf('.');
+  return dot > 0 && dot < domain.length - 1 && !trimmed.includes(' ');
 }
 
 function isValidPhone(phone) {
@@ -99,16 +148,16 @@ app.get('/api/health', (_req, res) => {
    AUTH
 ══════════════════════════════════════════════════════ */
 
-app.post('/api/admin/login', async (req, res) => {
+app.post('/api/admin/login', loginLimiter, async (req, res) => {
   const { username, password } = req.body || {};
 
   if (!username || !password) {
     return res.status(400).json({ error: 'Usuario y contraseña requeridos' });
   }
 
+  // Use constant-time bcrypt comparison to prevent timing attacks
   const validUser = username === ADMIN_USERNAME;
-  // Use constant-time comparison via bcrypt if stored as hash, otherwise plain compare
-  const validPass = password === ADMIN_PASSWORD;
+  const validPass = await bcrypt.compare(String(password), ADMIN_PASSWORD_HASH);
 
   if (!validUser || !validPass) {
     return res.status(401).json({ error: 'Credenciales incorrectas' });
@@ -116,7 +165,7 @@ app.post('/api/admin/login', async (req, res) => {
 
   const token = jwt.sign(
     { username, role: 'admin' },
-    JWT_SECRET,
+    EFFECTIVE_JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
   );
 
@@ -216,7 +265,7 @@ app.post('/api/reservations', (req, res) => {
     return res.status(400).json({ error: 'Teléfono inválido (ej: 912345678)' });
   }
   const numPersonas = Number(personas);
-  if (isNaN(numPersonas) || numPersonas < 1 || numPersonas > 200) {
+  if (isNaN(numPersonas) || numPersonas < 1 || numPersonas > MAX_RESERVATION_SIZE) {
     return res.status(400).json({ error: 'Personas debe estar entre 1 y 200' });
   }
 
