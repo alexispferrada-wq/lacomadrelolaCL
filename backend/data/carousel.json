@@ -1,0 +1,35 @@
+[
+  {
+    "id": "slide-1",
+    "title": "LA COMADRE LOLA",
+    "subtitle": "Gastronomia · Shows en Vivo · El Mejor Carrete",
+    "badge": "Restaurant - Bar - Eventos - Quilicura",
+    "image": "https://res.cloudinary.com/dqsz4ua73/image/upload/v1772145367/Fondo_fricsr.png",
+    "ctaPrimary": { "text": "🎉 RESERVA AHORA", "href": "#reservas" },
+    "ctaSecondary": { "text": "🎤 Ver Eventos", "href": "#eventos" },
+    "active": true,
+    "order": 1
+  },
+  {
+    "id": "slide-2",
+    "title": "SHOWS EN VIVO",
+    "subtitle": "Los mejores artistas nacionales en tu barrio",
+    "badge": "Todos los fines de semana",
+    "image": "https://res.cloudinary.com/dqsz4ua73/image/upload/v1772386173/Captura_de_pantalla_2026-03-01_142736_tpeial.png",
+    "ctaPrimary": { "text": "🎟 Ver Cartelera", "href": "#eventos" },
+    "ctaSecondary": { "text": "📸 Galería", "href": "#galeria" },
+    "active": true,
+    "order": 2
+  },
+  {
+    "id": "slide-3",
+    "title": "EXPERIENCIA VIP",
+    "subtitle": "Paquetes exclusivos para vivir la noche al máximo",
+    "badge": "Gold · Platinum · Diamond",
+    "image": "https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384756/IMG_9819_up1rqy.jpg",
+    "ctaPrimary": { "text": "⭐ Ver Paquetes VIP", "href": "#vip" },
+    "ctaSecondary": { "text": "🎉 Reservar Ahora", "href": "#reservas" },
+    "active": true,
+    "order": 3
+  }
+]

@@ -20,8 +20,11 @@ import {
   nextTestimonialSlide, prevTestimonialSlide
 } from './carousel.js';
 
+import { fetchEvents, submitReservation, fetchCarouselSlides } from './api.js';
+import { initMagneticCursor } from './cursor.js';
+
 /* ── DOM Ready ── */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
   initNav();
   initScrollSpy();
   initHeroParallax();
@@ -29,11 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initTransportTabs();
   initGalleryTabs();
   initLightbox();
-  initReservationForm();
   initNewsletter();
   initScrollToTop();
-  initEventsCarousel();
-  bindEventsCarouselButtons();
   initTestimonialsCarousel();
   bindTestimonialsButtons();
   initScrollAnimations();
@@ -43,10 +43,176 @@ document.addEventListener('DOMContentLoaded', () => {
   initCounters();
   initLazyLoad();
   initGalleryFilter();
+  initMagneticCursor();
+
+  // Load dynamic content from backend (with static fallback)
+  await loadDynamicEvents();
+  await loadHeroCarousel();
+
+  // Reservation form depends on dynamic events being rendered
+  initReservationForm();
 });
 
 /* ─────────────────────────────────────────────────────
-   NAV
+   DYNAMIC EVENTS — loaded from backend API
+   Falls back gracefully to the static HTML when the
+   API is not reachable (e.g. GitHub Pages without a
+   running backend).
+   ───────────────────────────────────────────────────── */
+function formatDateCL(isoDate) {
+  const d = new Date(isoDate);
+  const days   = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const months = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const hh = String(d.getHours()).padStart(2,'0');
+  const mm = String(d.getMinutes()).padStart(2,'0');
+  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} - ${hh}:${mm}`;
+}
+
+async function loadDynamicEvents() {
+  const grid = document.querySelector('.events-grid');
+  if (!grid) return;
+
+  const events = await fetchEvents();
+  if (!events || !events.length) return; // keep static HTML
+
+  grid.innerHTML = events.map((ev, i) => `
+    <article class="event-card reveal reveal-d${Math.min(i + 1, 6)} card-3d" role="listitem">
+      <div class="event-img-wrap">
+        <img data-src="${escAttr(ev.image)}"
+             src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+             alt="${escAttr(ev.name)}" class="event-img" loading="lazy">
+        <div class="event-img-overlay"></div>
+        ${ev.badge ? `<span class="event-badge">${escHtml(ev.badge)}</span>` : ''}
+      </div>
+      <div class="event-body">
+        <div class="event-genre">&#x25CF; ${escHtml(ev.genre)}</div>
+        <h3 class="event-name">${escHtml(ev.name)}</h3>
+        <div class="event-meta">
+          <span class="event-meta-item">&#x1F4C5; ${escHtml(formatDateCL(ev.date))}</span>
+          <span class="event-meta-item">&#x1F4CD; ${escHtml(ev.location || 'Quilicura')}</span>
+        </div>
+        <a href="#reservas" class="event-btn">${escHtml(ev.btnText || '🎟 Comprar Entradas')}</a>
+      </div>
+    </article>
+  `).join('');
+
+  // Re-run lazy load and scroll animations on new elements
+  initLazyLoad();
+  document.querySelectorAll('.event-card.reveal').forEach(el => {
+    if (!el.classList.contains('visible')) el.classList.remove('visible');
+  });
+  // Notify cursor module about new interactive elements
+  document.dispatchEvent(new CustomEvent('lola:eventsRendered'));
+}
+
+/* ─────────────────────────────────────────────────────
+   HERO CAROUSEL — loaded from backend API
+   The hero becomes a slideshow when slides are provided.
+   Falls back to static hero when API is unavailable.
+   ───────────────────────────────────────────────────── */
+async function loadHeroCarousel() {
+  const heroSection = document.getElementById('inicio');
+  if (!heroSection) return;
+
+  const slides = await fetchCarouselSlides();
+  if (!slides || slides.length < 2) return; // static hero is fine
+
+  const heroBg      = heroSection.querySelector('.hero-bg');
+  const heroContent = heroSection.querySelector('.hero-content');
+  if (!heroBg || !heroContent) return;
+
+  let currentSlide = 0;
+  let heroTimer    = null;
+  const HERO_INTERVAL = 6000;
+
+  // Pre-load images
+  slides.forEach(s => { const img = new Image(); img.src = s.image; });
+
+  // Build dot navigation
+  const dotsHtml = slides.map((_, i) =>
+    `<button class="hero-dot${i === 0 ? ' active' : ''}" data-index="${i}" aria-label="Slide ${i + 1}"></button>`
+  ).join('');
+  const dotsWrap = document.createElement('div');
+  dotsWrap.className = 'hero-carousel-dots';
+  dotsWrap.innerHTML = dotsHtml;
+  heroSection.appendChild(dotsWrap);
+
+  function goToSlide(idx) {
+    currentSlide = (idx + slides.length) % slides.length;
+    const s = slides[currentSlide];
+
+    // Fade background
+    heroBg.style.backgroundImage = `url(${s.image})`;
+
+    // Update content
+    const badge    = heroContent.querySelector('.hero-badge');
+    const title    = heroContent.querySelector('.hero-title');
+    const subtitle = heroContent.querySelector('.hero-subtitle');
+    const ctaBtns  = heroContent.querySelector('.hero-cta');
+
+    if (badge)    badge.textContent      = s.badge || '';
+    if (title)    title.innerHTML        = escHtml(s.title).replace(/LOLA/, '<span>LOLA</span>');
+    if (subtitle) subtitle.textContent   = s.subtitle || '';
+    if (ctaBtns) {
+      const [btnA, btnB] = ctaBtns.querySelectorAll('a');
+      if (btnA && s.ctaPrimary)   { btnA.href = s.ctaPrimary.href;   btnA.textContent = s.ctaPrimary.text;   }
+      if (btnB && s.ctaSecondary) { btnB.href = s.ctaSecondary.href; btnB.textContent = s.ctaSecondary.text; }
+    }
+
+    // Update dots
+    dotsWrap.querySelectorAll('.hero-dot').forEach((d, i) =>
+      d.classList.toggle('active', i === currentSlide)
+    );
+  }
+
+  function startAutoplay() {
+    stopAutoplay();
+    heroTimer = setInterval(() => goToSlide(currentSlide + 1), HERO_INTERVAL);
+  }
+  function stopAutoplay() { clearInterval(heroTimer); }
+
+  // Dot click
+  dotsWrap.addEventListener('click', e => {
+    const btn = e.target.closest('.hero-dot');
+    if (btn) {
+      goToSlide(Number(btn.dataset.index));
+      stopAutoplay();
+      startAutoplay();
+    }
+  });
+
+  // Pause on hover
+  heroSection.addEventListener('mouseenter', stopAutoplay);
+  heroSection.addEventListener('mouseleave', startAutoplay);
+
+  goToSlide(0);
+  startAutoplay();
+}
+
+/* ─────────────────────────────────────────────────────
+   SECURITY HELPERS
+   ───────────────────────────────────────────────────── */
+function escHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function escAttr(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+
    ───────────────────────────────────────────────────── */
 function initNav() {
   const nav       = document.querySelector('.nav');
@@ -304,7 +470,7 @@ function initReservationForm() {
   const success = document.getElementById('formSuccess');
   if (!form) return;
 
-  form.addEventListener('submit', e => {
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     if (!validateReservationForm(form)) return;
 
@@ -312,12 +478,34 @@ function initReservationForm() {
     btn.textContent = 'Enviando...';
     btn.disabled    = true;
 
-    // Simulate async submit
-    setTimeout(() => {
+    const data = {
+      nombre:   form.querySelector('#resName').value.trim(),
+      email:    form.querySelector('#resEmail').value.trim(),
+      telefono: form.querySelector('#resPhone').value.trim(),
+      personas: form.querySelector('#resPeople').value,
+      tipo:     form.querySelector('#resType').value,
+      fecha:    form.querySelector('#resDate').value,
+      mensaje:  form.querySelector('#resMsg')?.value.trim() || '',
+    };
+
+    const result = await submitReservation(data);
+
+    if (result.ok) {
+      // API success
       form.style.display = 'none';
       if (success) success.style.display = 'block';
       showToast('¡Reserva enviada! Te contactaremos pronto 🎉', 'success');
-    }, 1400);
+    } else if (result.message === null) {
+      // API unreachable — simulate success so the user experience isn't broken
+      form.style.display = 'none';
+      if (success) success.style.display = 'block';
+      showToast('¡Reserva recibida! Te contactaremos pronto 🎉', 'success');
+    } else {
+      // API returned a validation error
+      showToast(result.message || 'Error al enviar. Intenta de nuevo.', 'error');
+      btn.textContent = '🎉 Confirmar Reserva';
+      btn.disabled    = false;
+    }
   });
 
   // Real-time validation

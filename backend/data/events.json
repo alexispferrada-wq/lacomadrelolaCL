@@ -1,0 +1,74 @@
+[
+  {
+    "id": "evt-1",
+    "name": "Sunset Sessions",
+    "genre": "House - Deep House",
+    "date": "2026-07-18T22:00:00",
+    "badge": "¡PRÓXIMO!",
+    "image": "https://res.cloudinary.com/dqsz4ua73/image/upload/v1772386173/Captura_de_pantalla_2026-03-01_142736_tpeial.png",
+    "location": "Quilicura",
+    "btnText": "🎟 Comprar Entradas",
+    "active": true,
+    "order": 1
+  },
+  {
+    "id": "evt-2",
+    "name": "Noche de Bandas",
+    "genre": "Rock - Pop Nacional",
+    "date": "2026-07-26T21:00:00",
+    "badge": "AGOTANDOSE",
+    "image": "https://res.cloudinary.com/dqsz4ua73/image/upload/v1772386172/Captura_de_pantalla_2026-03-01_142910_amyn6w.png",
+    "location": "Quilicura",
+    "btnText": "🎟 Comprar Entradas",
+    "active": true,
+    "order": 2
+  },
+  {
+    "id": "evt-3",
+    "name": "Carrete La Comadre",
+    "genre": "Cumbia - Folclor",
+    "date": "2026-07-27T14:00:00",
+    "badge": "NUEVO",
+    "image": "https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384756/IMG_5076_hex95q.jpg",
+    "location": "Quilicura",
+    "btnText": "🎟 Comprar Entradas",
+    "active": true,
+    "order": 3
+  },
+  {
+    "id": "evt-4",
+    "name": "Noche de Tributos",
+    "genre": "Tributos - Cover Bands",
+    "date": "2026-08-01T22:00:00",
+    "badge": "MUY PRONTO",
+    "image": "https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384756/IMG_9819_up1rqy.jpg",
+    "location": "Quilicura",
+    "btnText": "🎟 Comprar Entradas",
+    "active": true,
+    "order": 4
+  },
+  {
+    "id": "evt-5",
+    "name": "Fiesta Criolla",
+    "genre": "Folclor - Cueca",
+    "date": "2026-08-02T20:00:00",
+    "badge": "ESPECIAL",
+    "image": "https://res.cloudinary.com/dqsz4ua73/image/upload/v1772384757/IMG_6534_ez2yuu.jpg",
+    "location": "Quilicura",
+    "btnText": "🎟 Comprar Entradas",
+    "active": true,
+    "order": 5
+  },
+  {
+    "id": "evt-6",
+    "name": "Open Mic Night",
+    "genre": "Open Mic - Talentos",
+    "date": "2026-08-06T19:00:00",
+    "badge": "GRATIS",
+    "image": "https://res.cloudinary.com/dqsz4ua73/image/upload/v1772386173/Captura_de_pantalla_2026-03-01_142736_tpeial.png",
+    "location": "Quilicura",
+    "btnText": "🎤 Inscribirse",
+    "active": true,
+    "order": 6
+  }
+]

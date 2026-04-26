@@ -6,15 +6,27 @@
 
 ```
 lacomadrelolaCL/
-├── index.html          — HTML semántico (~800 líneas)
+├── index.html          — HTML semántico
+├── admin.html          — Panel de administración
 ├── css/
-│   ├── styles.css      — Estilos principales (~1500 líneas)
-│   └── animations.css  — Keyframes y animaciones (~300 líneas)
+│   ├── styles.css      — Estilos principales
+│   └── animations.css  — Keyframes y animaciones
 ├── js/
-│   ├── script.js       — Interactividad principal (~500 líneas)
-│   ├── carousel.js     — Carruseles funcionales (~300 líneas)
-│   ├── animations.js   — Scroll animations, partículas (~200 líneas)
-│   └── utils.js        — Helpers y utilidades (~200 líneas)
+│   ├── script.js       — Interactividad principal
+│   ├── api.js          — Cliente API (backend)
+│   ├── cursor.js       — Cursor magnético personalizado
+│   ├── carousel.js     — Carruseles funcionales
+│   ├── animations.js   — Scroll animations, partículas
+│   └── utils.js        — Helpers y utilidades
+├── backend/            — API Node.js/Express
+│   ├── server.js
+│   ├── package.json
+│   ├── .env.example
+│   ├── README.md
+│   └── data/
+│       ├── events.json
+│       ├── reservations.json
+│       └── carousel.json
 ├── .gitignore
 └── README.md
 ```
@@ -29,23 +41,52 @@ lacomadrelolaCL/
 
 ## ✨ Funcionalidades
 
-- Hero section full-screen con parallax
-- Cartelera de eventos con 6 cards
+- Hero section full-screen con parallax + **carrusel de slides** (gestionado desde el admin)
+- Cartelera de eventos **cargada dinámicamente desde el backend** (con fallback estático)
 - Galería de artistas destacados
 - Timeline horizontal de eventos
 - Paquetes VIP (Gold / Platinum / Diamond)
 - Galería de fotos con lightbox y filtros por categoría
 - Carrusel de testimonios (5 reseñas) con autoplay
-- Formulario de reservas con validación frontend
+- **Formulario de reservas** que guarda en el backend
 - Newsletter con validación de email
 - Horarios en vivo (abierto/cerrado en tiempo real)
 - Countdown cuando está abierto
 - Transporte interactivo con 4 tabs
 - Mapa de Google Maps embebido
+- **Cursor magnético neon personalizado**
 - Scroll animations (Intersection Observer)
 - Lazy loading de imágenes
 - Mobile-first responsive
 - Dark mode premium
+
+## 🔧 Backend
+
+Ver [`backend/README.md`](./backend/README.md) para instrucciones de instalación y despliegue.
+
+```bash
+cd backend
+cp .env.example .env   # edita credenciales
+npm install
+npm start              # http://localhost:3001
+```
+
+## 🛠 Panel de Administración
+
+Abre `admin.html` en el navegador. Funciones:
+
+- 📊 **Dashboard** — estadísticas en tiempo real
+- 🎤 **Eventos** — crear, editar y eliminar eventos de la cartelera
+- 📅 **Reservas** — ver y gestionar todas las solicitudes recibidas
+- 🖼 **Carrusel** — gestionar los slides del hero principal
+
+## 🔗 Conectar frontend con backend
+
+En `js/api.js`, actualiza la constante `API_BASE_URL`:
+
+```js
+export const API_BASE_URL = 'https://tu-backend.railway.app';
+```
 
 ## 📍 Datos
 

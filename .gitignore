@@ -13,3 +13,7 @@ Thumbs.db
 
 # Temp
 /tmp/
+
+# Backend
+backend/node_modules/
+backend/.env

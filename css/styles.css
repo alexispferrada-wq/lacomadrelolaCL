@@ -1072,3 +1072,114 @@ ul, ol { list-style: none; }
 .mt-auto       { margin-top: auto; }
 .w-full        { width: 100%; }
 .sr-only       { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+/* ══════════════════════════════════════════════════════
+   CUSTOM MAGNETIC CURSOR
+══════════════════════════════════════════════════════ */
+.cursor-dot,
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 99999;
+  opacity: 0;
+  will-change: transform;
+  transition: opacity 0.3s ease;
+}
+
+/* Small dot — exact mouse position */
+.cursor-dot {
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  margin-top: -4px;
+  background: var(--primary, #E8913A);
+  border-radius: 50%;
+  transition: width 0.25s ease, height 0.25s ease, margin 0.25s ease,
+              background 0.25s ease, opacity 0.3s ease;
+}
+
+/* Outer ring — elastic lag */
+.cursor-ring {
+  width: 36px;
+  height: 36px;
+  margin-left: -18px;
+  margin-top: -18px;
+  border: 2px solid var(--primary, #E8913A);
+  border-radius: 50%;
+  transition: width 0.35s cubic-bezier(.25,.46,.45,.94),
+              height 0.35s cubic-bezier(.25,.46,.45,.94),
+              margin 0.35s cubic-bezier(.25,.46,.45,.94),
+              border-color 0.25s ease, opacity 0.3s ease;
+  box-shadow: 0 0 12px rgba(232,145,58,0.35);
+}
+
+/* Hovering interactive elements */
+.cursor-dot.is-hovering {
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  margin-top: -6px;
+  background: var(--secondary, #D4547B);
+}
+
+.cursor-ring.is-hovering {
+  width: 56px;
+  height: 56px;
+  margin-left: -28px;
+  margin-top: -28px;
+  border-color: var(--secondary, #D4547B);
+  box-shadow: 0 0 20px rgba(212,84,123,0.4);
+  background: rgba(212,84,123,0.07);
+}
+
+/* Clicking */
+.cursor-dot.is-clicking {
+  transform: scale(0.7) !important;
+  background: var(--accent, #4ECDC4);
+}
+.cursor-ring.is-clicking {
+  width: 26px;
+  height: 26px;
+  margin-left: -13px;
+  margin-top: -13px;
+  border-color: var(--accent, #4ECDC4);
+  box-shadow: 0 0 16px rgba(78,205,196,0.5);
+}
+
+/* Hide the browser cursor when custom cursor is active */
+body.custom-cursor,
+body.custom-cursor * { cursor: none !important; }
+
+/* ══════════════════════════════════════════════════════
+   HERO CAROUSEL DOTS
+══════════════════════════════════════════════════════ */
+.hero-carousel-dots {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+  z-index: 10;
+}
+
+.hero-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.hero-dot:hover { background: rgba(255,255,255,0.6); }
+
+.hero-dot.active {
+  background: var(--primary, #E8913A);
+  transform: scale(1.3);
+  box-shadow: 0 0 8px rgba(232,145,58,0.6);
+}
