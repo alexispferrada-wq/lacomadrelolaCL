@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS Editor — La Comadre Lola</title>
+<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & ROOT ── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --primary:#E8913A;--secondary:#D4547B;--accent:#4ECDC4;
+  --bg:#0d0d12;--bg-card:rgba(18,18,28,0.97);--bg-panel:#0f0f18;
+  --text:#f0f0f0;--text-muted:#8a8aa0;--border:rgba(255,255,255,0.07);
+  --radius:14px;--success:#4CAF50;--danger:#f44336;--warn:#ff9800;
+  --ft:'Righteous',cursive;--fb:'Inter',sans-serif;
+  --nav-h:60px;--sidebar-w:320px;--trans:.25s cubic-bezier(.25,.46,.45,.94);
+}
+html,body{height:100%;font-family:var(--fb);background:var(--bg);color:var(--text);overflow:hidden;}
+
+/* ═══════════════════════════════════════════════
+   LOGIN SCREEN
+═══════════════════════════════════════════════ */
+#loginScreen{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity .5s,transform .5s;
+}
+#loginScreen.out{opacity:0;transform:scale(1.04);pointer-events:none;}
+
+.login-wrap{
+  width:100%;max-width:400px;padding:20px;
+}
+.login-card{
+  background:var(--bg-card);
+  border:1px solid rgba(232,145,58,.2);
+  border-radius:24px;
+  padding:44px 40px;
+  box-shadow:0 40px 120px rgba(0,0,0,.7),0 0 60px rgba(232,145,58,.06);
+  position:relative;overflow:hidden;
+}
+.login-card::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(232,145,58,.12),transparent 70%);
+  pointer-events:none;
+}
+.login-card::after{
+  content:'';position:absolute;bottom:-40px;left:-40px;
+  width:140px;height:140px;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,84,123,.1),transparent 70%);
+  pointer-events:none;
+}
+.login-logo{
+  text-align:center;margin-bottom:32px;
+}
+.login-logo img{width:130px;margin:0 auto 12px;display:block;}
+.login-logo .brand{
+  font-family:var(--ft);font-size:22px;color:var(--primary);display:block;
+}
+.login-logo .sub{font-size:12px;color:var(--text-muted);letter-spacing:2px;text-transform:uppercase;}
+
+.login-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:24px;text-align:center;}
+
+.form-field{margin-bottom:18px;position:relative;}
+.form-field label{display:block;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;}
+.form-field input{
+  width:100%;padding:13px 16px 13px 44px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);border-radius:12px;
+  color:var(--text);font-size:14px;font-family:var(--fb);
+  transition:border-color var(--trans),background var(--trans);
+}
+.form-field input:focus{outline:none;border-color:var(--primary);background:rgba(232,145,58,.04);}
+.form-field .field-icon{
+  position:absolute;left:14px;bottom:13px;
+  font-size:16px;pointer-events:none;
+}
+.form-field input.error{border-color:var(--danger);}
+
+.login-error{
+  display:none;background:rgba(244,67,54,.1);border:1px solid rgba(244,67,54,.3);
+  color:#ff6b6b;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:16px;
+  text-align:center;
+}
+.login-error.show{display:block;}
+
+.btn-login{
+  width:100%;padding:14px;
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
+  border:none;border-radius:12px;color:#fff;
+  font-size:14px;font-weight:700;letter-spacing:.5px;
+  font-family:var(--fb);cursor:pointer;
+  transition:opacity var(--trans),transform var(--trans),box-shadow var(--trans);
+  box-shadow:0 8px 30px rgba(232,145,58,.3);
+  margin-top:4px;
+}
+.btn-login:hover{opacity:.92;transform:translateY(-1px);box-shadow:0 12px 40px rgba(232,145,58,.4);}
+.btn-login:active{transform:translateY(0);}
+.btn-login:disabled{opacity:.5;cursor:wait;}
+
+.login-hint{
+  text-align:center;margin-top:20px;font-size:12px;color:var(--text-muted);
+  background:rgba(78,205,196,.06);border:1px solid rgba(78,205,196,.15);
+  border-radius:10px;padding:10px 14px;
+}
+.login-hint strong{color:var(--accent);}
+
+/* ═══════════════════════════════════════════════
+   EDITOR APP
+═══════════════════════════════════════════════ */
+#app{display:none;height:100%;flex-direction:column;}
+#app.show{display:flex;}
+
+/* TOP NAV */
+.topnav{
+  height:var(--nav-h);background:rgba(13,13,18,.98);
+  border-bottom:1px solid rgba(232,145,58,.25);
+  display:flex;align-items:center;gap:14px;padding:0 20px;
+  flex-shrink:0;z-index:100;
+}
+.topnav-logo{font-family:var(--ft);font-size:15px;color:var(--primary);white-space:nowrap;display:flex;align-items:center;gap:8px;}
+.topnav-logo span{color:var(--text);font-size:13px;font-weight:400;font-family:var(--fb);}
+
+.topnav-sections{display:flex;gap:4px;flex:1;overflow-x:auto;scrollbar-width:none;}
+.topnav-sections::-webkit-scrollbar{display:none;}
+.sec-btn{
+  padding:6px 14px;border-radius:8px;border:1px solid var(--border);
+  background:transparent;color:var(--text-muted);font-size:12px;
+  font-weight:600;cursor:pointer;white-space:nowrap;font-family:var(--fb);
+  transition:all var(--trans);
+}
+.sec-btn:hover{border-color:var(--primary);color:var(--primary);}
+.sec-btn.active{background:rgba(232,145,58,.15);border-color:var(--primary);color:var(--primary);}
+
+.topnav-actions{display:flex;gap:8px;align-items:center;flex-shrink:0;}
+.live-pill{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--success);font-weight:700;padding:4px 10px;background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.25);border-radius:20px;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:blink 1.4s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.btn-logout{padding:6px 14px;background:rgba(244,67,54,.1);border:1px solid rgba(244,67,54,.25);border-radius:8px;color:#ff6b6b;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--fb);transition:all var(--trans);}
+.btn-logout:hover{background:rgba(244,67,54,.2);}
+.btn-export{padding:6px 14px;background:rgba(232,145,58,.15);border:1px solid var(--primary);border-radius:8px;color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--fb);transition:all var(--trans);}
+.btn-export:hover{background:rgba(232,145,58,.3);}
+
+/* MAIN LAYOUT */
+.main-layout{display:flex;flex:1;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{
+  width:var(--sidebar-w);min-width:260px;background:var(--bg-panel);
+  border-right:1px solid var(--border);display:flex;flex-direction:column;
+  overflow:hidden;flex-shrink:0;
+}
+.sidebar-hdr{padding:16px 20px 12px;border-bottom:1px solid var(--border);}
+.sidebar-hdr-label{font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);margin-bottom:3px;}
+.sidebar-hdr-name{font-size:15px;font-weight:600;color:var(--primary);}
+.sidebar-body{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px;}
+.sidebar-body::-webkit-scrollbar{width:3px;}
+.sidebar-body::-webkit-scrollbar-thumb{background:var(--primary);border-radius:3px;}
+.sidebar-foot{padding:14px 18px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:10px;}
+
+/* FORM CONTROLS */
+.fld-group{display:flex;flex-direction:column;gap:6px;}
+.fld-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);}
+.fld-input,.fld-select,.fld-textarea{
+  background:rgba(255,255,255,.04);border:1px solid var(--border);
+  border-radius:9px;color:var(--text);padding:9px 12px;
+  font-size:13px;font-family:var(--fb);width:100%;
+  transition:border-color var(--trans),background var(--trans);resize:none;
+}
+.fld-input:focus,.fld-select:focus,.fld-textarea:focus{outline:none;border-color:var(--primary);background:rgba(232,145,58,.04);}
+.fld-input.dirty{border-color:var(--accent);}
+.fld-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%238a8aa0' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:11px;}
+.fld-select option{background:#0f0f18;}
+
+/* COLOR PICKER ROW */
+.color-row{display:flex;gap:8px;align-items:center;}
+.color-swatch{width:38px;height:38px;border-radius:9px;border:1px solid var(--border);padding:2px;cursor:pointer;background:transparent;flex-shrink:0;}
+.color-hex{flex:1;}
+
+/* TOGGLE */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 13px;background:rgba(255,255,255,.03);border-radius:9px;border:1px solid var(--border);}
+.toggle-label{font-size:13px;color:var(--text);}
+.sw{position:relative;width:38px;height:22px;flex-shrink:0;}
+.sw input{opacity:0;width:0;height:0;}
+.sw-track{position:absolute;inset:0;background:rgba(255,255,255,.1);border-radius:22px;cursor:pointer;transition:.3s;}
+.sw-track::before{content:'';position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.3s;}
+.sw input:checked+.sw-track{background:var(--primary);}
+.sw input:checked+.sw-track::before{transform:translateX(16px);}
+
+/* GRID HELPERS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.grid-icon{display:grid;grid-template-columns:52px 1fr;gap:10px;}
+
+/* DIVIDER */
+.fld-div{height:1px;background:var(--border);margin:2px 0;}
+.fld-section{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent);padding:2px 0;}
+
+/* CHANGES BADGE */
+.changes-badge{font-size:11px;background:rgba(78,205,196,.12);color:var(--accent);border:1px solid rgba(78,205,196,.25);border-radius:20px;padding:3px 12px;font-weight:600;display:none;}
+.changes-badge.show{display:inline-block;}
+.code-toggle-btn{padding:6px 12px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:11px;cursor:pointer;font-family:var(--fb);transition:all var(--trans);}
+.code-toggle-btn:hover{border-color:var(--accent);color:var(--accent);}
+.code-block{display:none;background:#060609;border:1px solid var(--border);border-radius:10px;padding:12px;font-family:monospace;font-size:11px;color:#a0a0b0;white-space:pre-wrap;word-break:break-all;max-height:180px;overflow-y:auto;line-height:1.7;}
+.code-block.show{display:block;}
+.ck{color:var(--accent);}
+.cv{color:var(--primary);}
+
+/* ═══════════════════════════════════════════════
+   PREVIEW PANE
+═══════════════════════════════════════════════ */
+.preview-pane{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#06060d;}
+.preview-bar{
+  display:flex;align-items:center;gap:12px;padding:9px 16px;
+  background:rgba(13,13,18,.8);border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.preview-url{
+  flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);
+  border-radius:8px;color:var(--text-muted);padding:6px 14px;font-size:12px;font-family:monospace;
+}
+.device-row{display:flex;gap:4px;}
+.dev-btn{
+  padding:5px 10px;border-radius:7px;border:1px solid var(--border);
+  background:transparent;color:var(--text-muted);font-size:14px;cursor:pointer;transition:all var(--trans);
+}
+.dev-btn.active,.dev-btn:hover{background:rgba(232,145,58,.15);border-color:var(--primary);color:var(--primary);}
+
+.preview-viewport{flex:1;display:flex;justify-content:center;align-items:flex-start;padding:20px;overflow:auto;background:#06060d;}
+.preview-shell{
+  width:100%;min-height:400px;border-radius:14px;overflow:hidden;
+  box-shadow:0 24px 90px rgba(0,0,0,.85);border:1px solid var(--border);
+  transition:width .4s ease;
+}
+.preview-shell.tablet{width:768px;max-width:768px;}
+.preview-shell.mobile{width:390px;max-width:390px;}
+.preview-doc{
+  width:100%;min-height:100%;overflow-y:auto;
+  background:#0d0d12;
+  scrollbar-width:thin;scrollbar-color:var(--primary) transparent;
+}
+.preview-doc::-webkit-scrollbar{width:4px;}
+.preview-doc::-webkit-scrollbar-thumb{background:var(--primary);border-radius:4px;}
+
+/* ═══════════════════════════════════════════════
+   SITE PREVIEW INTERNALS
+═══════════════════════════════════════════════ */
+.pv-nav{
+  position:sticky;top:0;background:rgba(13,13,18,.96);
+  border-bottom:1px solid rgba(232,145,58,.25);
+  padding:0 28px;height:58px;display:flex;align-items:center;
+  justify-content:space-between;z-index:10;backdrop-filter:blur(20px);
+}
+.pv-brand{font-family:'Righteous',cursive;font-size:18px;}
+.pv-links{display:flex;gap:18px;align-items:center;}
+.pv-link{font-size:11px;font-weight:500;color:#8a8aa0;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
+.pv-cta{padding:6px 16px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;border:none;cursor:pointer;color:#fff;}
+
+.pv-hero{
+  min-height:500px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;
+  padding:70px 28px;position:relative;overflow:hidden;
+}
+.pv-hero-glow{position:absolute;inset:0;pointer-events:none;}
+.pv-badge{
+  display:inline-block;font-size:11px;font-weight:600;letter-spacing:3px;
+  text-transform:uppercase;border-radius:20px;padding:5px 16px;margin-bottom:22px;
+}
+.pv-h1{font-family:'Righteous',cursive;font-size:clamp(2rem,5vw,3.4rem);color:#fff;line-height:1.08;margin-bottom:12px;}
+.pv-sub{color:#8a8aa0;font-size:14px;margin-bottom:32px;font-family:'Inter',sans-serif;}
+.pv-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+.pv-btn-main{padding:13px 30px;border-radius:50px;font-size:13px;font-weight:700;border:none;cursor:pointer;color:#fff;font-family:'Inter',sans-serif;}
+.pv-btn-sec{padding:13px 30px;border-radius:50px;font-size:13px;font-weight:700;font-family:'Inter',sans-serif;background:transparent;color:#f0f0f0;border:1px solid rgba(255,255,255,.2);cursor:pointer;}
+.pv-roses{margin-top:20px;font-size:22px;letter-spacing:8px;opacity:.45;}
+
+.pv-section{padding:60px 28px;}
+.pv-lbl{font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;display:block;margin-bottom:10px;font-family:'Inter',sans-serif;}
+.pv-title{font-family:'Righteous',cursive;font-size:clamp(1.6rem,3vw,2.2rem);color:#fff;margin-bottom:8px;}
+.pv-desc{color:#8a8aa0;font-size:13px;margin-bottom:26px;max-width:500px;font-family:'Inter',sans-serif;}
+.pv-divider{width:50px;height:3px;border-radius:2px;margin-bottom:28px;}
+
+.pv-events{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;}
+.pv-ecard{background:rgba(20,20,30,.9);border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .25s;}
+.pv-ecard:hover{transform:translateY(-5px);}
+.pv-eimg{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;font-size:38px;}
+.pv-ebody{padding:13px;}
+.pv-etag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:7px;font-family:'Inter',sans-serif;}
+.pv-ename{font-family:'Righteous',cursive;font-size:14px;color:#fff;margin-bottom:4px;}
+.pv-edate{font-size:11px;color:#8a8aa0;margin-bottom:7px;font-family:'Inter',sans-serif;}
+.pv-eprice{font-size:14px;font-weight:700;font-family:'Inter',sans-serif;}
+
+
+.pv-footer{background:#07070e;padding:40px 28px 20px;border-top:1px solid rgba(255,255,255,.06);}
+.pv-fbrand{font-family:'Righteous',cursive;font-size:22px;margin-bottom:4px;}
+.pv-ftag{font-size:12px;color:#8a8aa0;margin-bottom:16px;font-family:'Inter',sans-serif;}
+.pv-finfo{font-size:12px;color:#8a8aa0;line-height:2.1;margin-bottom:20px;font-family:'Inter',sans-serif;}
+.pv-fbot{display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid rgba(255,255,255,.05);font-size:11px;color:#666;font-family:'Inter',sans-serif;}
+
+/* FLYER UPLOAD */
+.flyer-upload-area{
+  width:100%;aspect-ratio:3/4;border-radius:12px;border:2px dashed var(--border);
+  cursor:pointer;overflow:hidden;display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.03);transition:border-color var(--trans),background var(--trans);
+  position:relative;min-height:140px;
+}
+.flyer-upload-area:hover{border-color:var(--primary);background:rgba(232,145,58,.04);}
+.flyer-placeholder{display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px;}
+.flyer-remove-btn{
+  margin-top:6px;width:100%;padding:6px;background:rgba(244,67,54,.1);
+  border:1px solid rgba(244,67,54,.25);border-radius:8px;color:#ff6b6b;
+  font-size:11px;cursor:pointer;font-family:var(--fb);transition:all var(--trans);
+}
+.flyer-remove-btn:hover{background:rgba(244,67,54,.2);}
+
+/* PREVIEW EVENT CARDS — FLYER STYLE */
+.pv-events{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;}
+.pv-ecard{
+  background:rgba(16,16,26,.95);border:1px solid rgba(255,255,255,.07);
+  border-radius:16px;overflow:hidden;transition:transform .3s,box-shadow .3s;cursor:pointer;
+  display:flex;flex-direction:column;
+}
+.pv-ecard:hover{transform:translateY(-6px);box-shadow:0 20px 50px rgba(0,0,0,.7);}
+.pv-eflyer{
+  width:100%;aspect-ratio:3/4;position:relative;overflow:hidden;flex-shrink:0;
+}
+.pv-eflyer img{width:100%;height:100%;object-fit:cover;transition:transform .4s;}
+.pv-ecard:hover .pv-eflyer img{transform:scale(1.05);}
+.pv-eflyer-ph{
+  width:100%;height:100%;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.pv-eflyer-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom, transparent 40%, rgba(10,10,18,.98) 100%);
+}
+.pv-ebadge{
+  position:absolute;top:12px;left:12px;
+  font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:#fff;padding:4px 12px;border-radius:12px;font-family:'Inter',sans-serif;
+}
+.pv-eflyer-tag{
+  position:absolute;bottom:12px;left:12px;right:12px;
+  font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  padding:3px 10px;border-radius:20px;font-family:'Inter',sans-serif;
+  display:inline-block;width:fit-content;
+}
+.pv-ebody{padding:14px 16px 16px;display:flex;flex-direction:column;gap:8px;flex:1;}
+.pv-ename{font-family:'Righteous',cursive;font-size:16px;color:#fff;line-height:1.2;}
+.pv-emeta{display:flex;flex-direction:column;gap:3px;font-size:11px;color:#8a8aa0;font-family:'Inter',sans-serif;line-height:1.5;}
+.pv-edesc{font-size:11px;color:#6a6a80;line-height:1.5;font-family:'Inter',sans-serif;}
+.pv-efooter{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);}
+.pv-eprice{font-size:16px;font-weight:700;font-family:'Inter',sans-serif;}
+.pv-ebtn{
+  padding:7px 16px;border-radius:20px;font-size:11px;font-weight:700;
+  border:none;cursor:pointer;color:#fff;font-family:'Inter',sans-serif;
+  white-space:nowrap;
+}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:99999;
+  padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;
+  opacity:0;transform:translateY(10px);pointer-events:none;
+  transition:all .3s;box-shadow:0 8px 30px rgba(0,0,0,.5);
+}
+.toast.show{opacity:1;transform:translateY(0);}
+.toast.success{background:var(--success);color:#fff;}
+.toast.error{background:var(--danger);color:#fff;}
+.toast.info{background:rgba(78,205,196,.9);color:#0d0d12;}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN SCREEN ═══════════════ -->
+<div id="loginScreen">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">
+        <img src="https://res.cloudinary.com/dqsz4ua73/image/upload/v1772144927/logo_antiguo_blanco_hlqj58.png" alt="Logo" onerror="this.style.display='none'">
+        <span class="brand">La Comadre Lola</span>
+        <span class="sub">CMS · Panel de Edición</span>
+      </div>
+      <p class="login-title">Ingresa tus credenciales para continuar</p>
+      <div class="login-error" id="loginErr"></div>
+      <div class="form-field">
+        <label>Usuario</label>
+        <span class="field-icon">👤</span>
+        <input id="loginUser" type="text" placeholder="admin" autocomplete="username">
+      </div>
+      <div class="form-field">
+        <label>Contraseña</label>
+        <span class="field-icon">🔒</span>
+        <input id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-login" id="loginBtn" onclick="doLogin()">Entrar al Editor →</button>
+      <div class="login-hint">
+        Demo: usuario <strong>admin</strong> · contraseña <strong>lola2026</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ EDITOR APP ═══════════════ -->
+<div id="app">
+  <!-- TOP NAV -->
+  <nav class="topnav">
+    <div class="topnav-logo">🌹 <span>La Comadre Lola — Editor CMS</span></div>
+    <div class="topnav-sections" id="secTabs">
+      <button class="sec-btn active" onclick="gotoSection('hero',this)">🏠 Hero</button>
+      <button class="sec-btn" onclick="gotoSection('eventos',this)">🎤 Eventos</button>
+      <button class="sec-btn" onclick="gotoSection('colores',this)">🎨 Colores</button>
+      <button class="sec-btn" onclick="gotoSection('footer',this)">📍 Footer</button>
+    </div>
+    <div class="topnav-actions">
+      <div class="live-pill"><span class="live-dot"></span>LIVE</div>
+      <button class="btn-export" onclick="exportChanges()">📋 Exportar</button>
+      <button class="btn-logout" onclick="doLogout()">✕ Salir</button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-hdr">
+        <div class="sidebar-hdr-label">Editando</div>
+        <div class="sidebar-hdr-name" id="sidebarTitle">🏠 Hero / Inicio</div>
+      </div>
+      <div class="sidebar-body" id="editorBody"></div>
+      <div class="sidebar-foot">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span class="changes-badge" id="dirtybadge">● Cambios sin guardar</span>
+          <button class="code-toggle-btn" onclick="toggleCode()">{ } CSS</button>
+        </div>
+        <div class="code-block" id="codeOut"></div>
+      </div>
+    </aside>
+
+    <!-- PREVIEW -->
+    <div class="preview-pane">
+      <div class="preview-bar">
+        <div class="preview-url">https://alexispferrada-wq.github.io/lacomadrelolaCL/</div>
+        <div class="device-row">
+          <button class="dev-btn active" onclick="setDev('desktop',this)">🖥</button>
+          <button class="dev-btn" onclick="setDev('tablet',this)">📱</button>
+          <button class="dev-btn" onclick="setDev('mobile',this)">📲</button>
+        </div>
+      </div>
+      <div class="preview-viewport">
+        <div class="preview-shell" id="previewShell">
+          <div class="preview-doc" id="previewDoc"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════
+   AUTH — JWT via backend
+═══════════════════════════════════════════════ */
+const API = window.location.origin;
+
+async function doLogin(){
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  const btn = document.getElementById('loginBtn');
+
+  document.getElementById('loginErr').classList.remove('show');
+  if(!u||!p){ showLoginErr('Completa usuario y contraseña.'); return; }
+
+  btn.disabled = true; btn.textContent = 'Verificando...';
+
+  try {
+    const res = await fetch(API + '/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario: u, password: p }),
+    });
+    const data = await res.json();
+
+    if(data.ok){
+      localStorage.setItem('lola_token', data.token);
+      localStorage.setItem('lola_user', data.usuario);
+      document.getElementById('loginScreen').classList.add('out');
+      setTimeout(()=>{
+        document.getElementById('loginScreen').style.display='none';
+        document.getElementById('app').classList.add('show');
+        initEditor();
+      }, 500);
+    } else {
+      btn.disabled = false; btn.textContent = 'Entrar al Editor →';
+      showLoginErr(data.error || 'Usuario o contraseña incorrectos.');
+      document.getElementById('loginPass').classList.add('error');
+      setTimeout(()=>document.getElementById('loginPass').classList.remove('error'),2000);
+    }
+  } catch {
+    btn.disabled = false; btn.textContent = 'Entrar al Editor →';
+    showLoginErr('Error de conexión con el servidor.');
+  }
+}
+
+function showLoginErr(msg){
+  const e = document.getElementById('loginErr');
+  e.textContent = '⚠️  '+msg; e.classList.add('show');
+}
+
+function doLogout(){
+  localStorage.removeItem('lola_token');
+  localStorage.removeItem('lola_user');
+  document.getElementById('app').classList.remove('show');
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('loginScreen').classList.remove('out');
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginUser').value='';
+  document.getElementById('loginErr').classList.remove('show');
+  document.getElementById('loginBtn').disabled=false;
+  document.getElementById('loginBtn').textContent='Entrar al Editor →';
+}
+
+// Verificar token existente al cargar
+window.addEventListener('DOMContentLoaded', async ()=>{
+  document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+  document.getElementById('loginUser').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPass').focus();});
+
+  const token = localStorage.getItem('lola_token');
+  if(token){
+    try {
+      const r = await fetch(API + '/api/auth/me', { headers:{ Authorization:'Bearer '+token } });
+      if(r.ok){
+        document.getElementById('loginScreen').style.display='none';
+        document.getElementById('app').classList.add('show');
+        initEditor();
+        return;
+      }
+    } catch {}
+    localStorage.removeItem('lola_token');
+  }
+});
+
+/* ═══════════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════════ */
+const S = {
+  colors:{ primary:'#E8913A', secondary:'#D4547B', accent:'#4ECDC4', bg:'#0d0d12' },
+  hero:{
+    title1:'LA COMADRE', title2:'LOLA',
+    subtitle:'Gastronomia - Shows en Vivo - El Mejor Carrete',
+    badge:'Restaurant - Bar - Eventos - Quilicura',
+    btn1:'🎉 RESERVA AHORA', btn2:'🎤 Ver Eventos',
+    particles:true, roses:true,
+  },
+  eventos:[
+    {flyer:'',name:'Sunset Sessions',     genero:'House - Deep House',   fecha:'Viernes 18 Jul', hora:'22:00',price:'$8.000', badge:'¡PRÓXIMO!',  tag:'música',   desc:'Una noche de house y deep house con los mejores DJs de la escena local.',          btn:'Comprar Entradas',link:''},
+    {flyer:'',name:'Noche de Bandas',     genero:'Rock - Pop Nacional',  fecha:'Sábado 26 Jul',  hora:'21:00',price:'$12.000',badge:'AGOTÁNDOSE', tag:'música',   desc:'Las mejores bandas de rock y pop nacional en un solo escenario.',                  btn:'Comprar Entradas',link:''},
+    {flyer:'',name:'Carrete La Comadre', genero:'Cumbia - Folclor',     fecha:'Domingo 27 Jul', hora:'14:00',price:'$6.000', badge:'NUEVO',      tag:'especial',desc:'El carrete más grande de Quilicura con cumbia y folclor chileno.',                   btn:'Comprar Entradas',link:''},
+    {flyer:'',name:'Noche de Tributos',  genero:'Tributos - Covers',    fecha:'Viernes 1 Ago',  hora:'22:00',price:'$10.000',badge:'MUY PRONTO', tag:'música',   desc:'Los mejores tributos a bandas icónicas nacionales e internacionales.',              btn:'Comprar Entradas',link:''},
+    {flyer:'',name:'Fiesta Criolla',     genero:'Folclor - Cueca',      fecha:'Sábado 2 Ago',   hora:'20:00',price:'$12.000',badge:'ESPECIAL',   tag:'especial',desc:'Una noche de folclor y cueca para celebrar lo mejor de Chile.',                     btn:'Comprar Entradas',link:''},
+    {flyer:'',name:'Open Mic Night',     genero:'Open Mic - Talentos',  fecha:'Miércoles 6 Ago',hora:'19:00',price:'GRATIS', badge:'GRATIS',     tag:'especial',desc:'Tu oportunidad de brillar en el escenario de La Comadre Lola.',                     btn:'Inscribirse',link:''},
+  ],
+  footer:{
+    address:'Manuel Antonio Matta 1269, Quilicura',
+    phone:'+56 9 1234 5678',
+    hours:'Mié 17–00 · Jue 17–01 · Vie-Sáb 13–02 · Dom 13–19',
+    copyright:'© 2026 La Comadre Lola. Todos los derechos reservados.',
+  }
+};
+
+let currentSection='hero';
+const dirty={};
+let codeOpen=false;
+
+/* ═══════════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════════ */
+function dset(obj,path,val){
+  const p=path.split('.');let o=obj;
+  for(let i=0;i<p.length-1;i++){const k=p[i],nk=p[i+1];if(!o[k])o[k]=isNaN(nk)?{}:[];o=!isNaN(k)?o[+k]:o[k];}
+  const l=p[p.length-1];if(!isNaN(l))o[+l]=val;else o[l]=val;
+}
+
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type+' show';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);
+}
+
+/* ═══════════════════════════════════════════════
+   SECTION TEMPLATES
+═══════════════════════════════════════════════ */
+const SECTIONS={
+  hero:{
+    title:'🏠 Hero / Inicio',
+    html:()=>`
+      <div class="fld-section">TEXTO PRINCIPAL</div>
+      <div class="fld-group"><div class="fld-label">Título — Línea 1</div><input class="fld-input" data-k="hero.title1" value="${S.hero.title1}"></div>
+      <div class="fld-group"><div class="fld-label">Título — Línea 2 (color primario)</div><input class="fld-input" data-k="hero.title2" value="${S.hero.title2}"></div>
+      <div class="fld-group"><div class="fld-label">Subtítulo</div><input class="fld-input" data-k="hero.subtitle" value="${S.hero.subtitle}"></div>
+      <div class="fld-group"><div class="fld-label">Badge / Etiqueta</div><input class="fld-input" data-k="hero.badge" value="${S.hero.badge}"></div>
+      <div class="fld-div"></div>
+      <div class="fld-section">BOTONES CTA</div>
+      <div class="fld-group"><div class="fld-label">Botón Principal</div><input class="fld-input" data-k="hero.btn1" value="${S.hero.btn1}"></div>
+      <div class="fld-group"><div class="fld-label">Botón Secundario</div><input class="fld-input" data-k="hero.btn2" value="${S.hero.btn2}"></div>
+      <div class="fld-div"></div>
+      <div class="fld-section">EFECTOS VISUALES</div>
+      <div class="toggle-row"><span class="toggle-label">✨ Partículas brillantes</span><label class="sw"><input type="checkbox" data-k="hero.particles" ${S.hero.particles?'checked':''}><span class="sw-track"></span></label></div>
+      <div class="toggle-row"><span class="toggle-label">🌹 Rosas cayendo</span><label class="sw"><input type="checkbox" data-k="hero.roses" ${S.hero.roses?'checked':''}><span class="sw-track"></span></label></div>
+    `
+  },
+  eventos:{
+    title:'🎤 Cartelera de Eventos',
+    html:()=>S.eventos.map((e,i)=>`
+      <div class="fld-section">EVENTO ${i+1}</div>
+
+      <!-- FLYER UPLOAD -->
+      <div class="fld-group">
+        <div class="fld-label">🖼 Flyer del evento</div>
+        <div class="flyer-upload-area" id="flyerArea${i}" onclick="triggerFlyerPick(${i})">
+          ${e.flyer
+            ? `<img src="${e.flyer}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`
+            : `<div class="flyer-placeholder"><span style="font-size:28px">🖼</span><span style="font-size:12px;color:var(--text-muted);margin-top:6px">Click para subir flyer</span><span style="font-size:10px;color:var(--text-muted);margin-top:2px">JPG, PNG, WEBP · máx 5MB</span></div>`
+          }
+        </div>
+        <input type="file" id="flyerInput${i}" accept="image/*" style="display:none" onchange="handleFlyerUpload(${i},this)">
+        ${e.flyer ? `<button class="flyer-remove-btn" onclick="removeFlyerImg(${i})">✕ Quitar imagen</button>` : ''}
+      </div>
+
+      <!-- INFO -->
+      <div class="fld-group"><div class="fld-label">Nombre del evento</div><input class="fld-input" data-k="eventos.${i}.name" value="${e.name}"></div>
+      <div class="fld-group"><div class="fld-label">Género / Estilo musical</div><input class="fld-input" data-k="eventos.${i}.genero" value="${e.genero}" placeholder="Rock, Cumbia, DJ Set..."></div>
+      <div class="fld-group"><div class="fld-label">Descripción breve</div><textarea class="fld-textarea" data-k="eventos.${i}.desc" rows="2" placeholder="Descripción del evento...">${e.desc}</textarea></div>
+      <div class="grid-2">
+        <div class="fld-group"><div class="fld-label">📅 Fecha</div><input class="fld-input" data-k="eventos.${i}.fecha" value="${e.fecha}" placeholder="Viernes 18 Jul"></div>
+        <div class="fld-group"><div class="fld-label">🕐 Hora</div><input class="fld-input" data-k="eventos.${i}.hora" value="${e.hora}" placeholder="21:00"></div>
+      </div>
+      <div class="grid-2">
+        <div class="fld-group"><div class="fld-label">💰 Precio entrada</div><input class="fld-input" data-k="eventos.${i}.price" value="${e.price}" placeholder="$10.000"></div>
+        <div class="fld-group"><div class="fld-label">🏷 Badge</div><input class="fld-input" data-k="eventos.${i}.badge" value="${e.badge}" placeholder="¡PRÓXIMO!"></div>
+      </div>
+      <div class="fld-group"><div class="fld-label">Categoría</div>
+        <select class="fld-select" data-k="eventos.${i}.tag">
+          <option value="música" ${e.tag==='música'?'selected':''}>🎵 Música</option>
+          <option value="carrete" ${e.tag==='carrete'?'selected':''}>🕺 Carrete</option>
+          <option value="especial" ${e.tag==='especial'?'selected':''}>⭐ Especial</option>
+        </select>
+      </div>
+      <div class="fld-group"><div class="fld-label">Texto botón</div><input class="fld-input" data-k="eventos.${i}.btn" value="${e.btn}" placeholder="Comprar Entradas"></div>
+      <div class="fld-group"><div class="fld-label">🔗 Link de compra</div><input class="fld-input" type="url" data-k="eventos.${i}.link" value="${e.link||''}" placeholder="https://passline.com/evento..."></div>
+
+      ${i<S.eventos.length-1?'<div class="fld-div" style="margin:6px 0 4px"></div>':''}
+    `).join('')
+  },
+  colores:{
+    title:'🎨 Paleta de Colores',
+    html:()=>[
+      {k:'colors.primary',  label:'🟠 Primario',   v:S.colors.primary,   desc:'Botones, acentos, títulos'},
+      {k:'colors.secondary',label:'🩷 Secundario',  v:S.colors.secondary, desc:'Gradientes, detalles'},
+      {k:'colors.accent',   label:'🩵 Acento',      v:S.colors.accent,    desc:'Highlights, etiquetas'},
+      {k:'colors.bg',       label:'⬛ Fondo',        v:S.colors.bg,        desc:'Color de fondo principal'},
+    ].map(c=>`
+      <div class="fld-group">
+        <div class="fld-label">${c.label}</div>
+        <div class="color-row">
+          <input type="color" class="color-swatch" value="${c.v}" data-ck="${c.k}" onchange="updateColor('${c.k}',this.value)">
+          <input class="fld-input color-hex" data-k="${c.k}" value="${c.v}" placeholder="#000000" style="font-family:monospace">
+        </div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:4px">${c.desc}</div>
+      </div>
+      <div class="fld-div"></div>
+    `).join('')
+  },
+  footer:{
+    title:'📍 Información y Footer',
+    html:()=>`
+      <div class="fld-section">CONTACTO</div>
+      <div class="fld-group"><div class="fld-label">Dirección</div><input class="fld-input" data-k="footer.address" value="${S.footer.address}"></div>
+      <div class="fld-group"><div class="fld-label">Teléfono / WhatsApp</div><input class="fld-input" data-k="footer.phone" value="${S.footer.phone}"></div>
+      <div class="fld-group"><div class="fld-label">Horarios de atención</div><textarea class="fld-textarea" data-k="footer.hours" rows="2">${S.footer.hours}</textarea></div>
+      <div class="fld-div"></div>
+      <div class="fld-section">LEGAL</div>
+      <div class="fld-group"><div class="fld-label">Copyright</div><input class="fld-input" data-k="footer.copyright" value="${S.footer.copyright}"></div>
+    `
+  }
+};
+
+/* ═══════════════════════════════════════════════
+   INIT EDITOR
+═══════════════════════════════════════════════ */
+function initEditor(){
+  renderSection('hero');
+  renderPreview();
+}
+
+function gotoSection(name,btn){
+  currentSection=name;
+  document.querySelectorAll('.sec-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  renderSection(name);
+  setTimeout(()=>{
+    const map={hero:'#pvhero',eventos:'#pvevents',footer:'#pvfooter'};
+    const el=document.querySelector(map[name]);
+    if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+  },80);
+}
+
+function renderSection(name){
+  document.getElementById('sidebarTitle').textContent=SECTIONS[name].title;
+  document.getElementById('editorBody').innerHTML=SECTIONS[name].html();
+  bindInputs();
+}
+
+/* ═══════════════════════════════════════════════
+   BIND INPUTS
+═══════════════════════════════════════════════ */
+function bindInputs(){
+  document.querySelectorAll('[data-k]').forEach(el=>{
+    const k=el.dataset.k, ev=el.tagName==='SELECT'?'change':'input';
+    el.addEventListener(ev,()=>{
+      const val=el.type==='checkbox'?el.checked:el.value;
+      dset(S,k,val);
+      el.classList.add('dirty');
+      if(k.startsWith('colors.')){
+        const sw=document.querySelector(`[data-ck="${k}"]`);
+        if(sw&&/^#[0-9a-fA-F]{6}$/.test(val))sw.value=val;
+      }
+      dirty[k]=val;
+      document.getElementById('dirtybadge').classList.add('show');
+      renderPreview();
+      refreshCode();
+    });
+    if(el.type==='checkbox')el.addEventListener('change',()=>{
+      dset(S,k,el.checked);dirty[k]=el.checked;
+      document.getElementById('dirtybadge').classList.add('show');
+      renderPreview();refreshCode();
+    });
+  });
+}
+
+function updateColor(k,v){
+  dset(S,k,v);
+  const hex=document.querySelector(`.color-hex[data-k="${k}"]`);
+  if(hex){hex.value=v;hex.classList.add('dirty');}
+  dirty[k]=v;
+  document.getElementById('dirtybadge').classList.add('show');
+  renderPreview();refreshCode();
+}
+
+/* ═══════════════════════════════════════════════
+   RENDER PREVIEW
+═══════════════════════════════════════════════ */
+function renderPreview(){
+  const p=S.colors.primary,s=S.colors.secondary,a=S.colors.accent,bg=S.colors.bg;
+  const tagStyleMap={
+    'música':`background:${p}22;color:${p}`,
+    'carrete':`background:${s}22;color:${s}`,
+    'especial':`background:${a}22;color:${a}`,
+  };
+
+  const evHTML=S.eventos.map(e=>`
+    <div class="pv-ecard">
+      <!-- FLYER -->
+      <div class="pv-eflyer">
+        ${e.flyer
+          ? `<img src="${e.flyer}" alt="${e.name}" style="width:100%;height:100%;object-fit:cover">`
+          : `<div class="pv-eflyer-ph" style="background:linear-gradient(145deg,${p}22,${s}18)">
+               <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:${p};text-transform:uppercase;text-align:center;padding:0 12px">${e.name}</div>
+               <div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:6px">Sin flyer subido</div>
+             </div>`
+        }
+        <div class="pv-eflyer-overlay"></div>
+        <div class="pv-ebadge" style="background:linear-gradient(135deg,${p},${s})">${e.badge}</div>
+        <div class="pv-eflyer-tag" style="${tagStyleMap[e.tag]||tagStyleMap['música']}">${e.genero}</div>
+      </div>
+      <!-- INFO -->
+      <div class="pv-ebody">
+        <div class="pv-ename">${e.name}</div>
+        <div class="pv-emeta">
+          <span>📅 ${e.fecha} · ${e.hora}</span>
+        </div>
+        ${e.desc ? `<div class="pv-edesc">${e.desc}</div>` : ''}
+        <div class="pv-efooter">
+          <div class="pv-eprice" style="color:${p}">${e.price}</div>
+          ${e.link
+            ? `<a href="${e.link}" target="_blank" style="text-decoration:none"><button class="pv-ebtn" style="background:linear-gradient(135deg,${p},${s})">${e.btn||'Comprar Entradas'}</button></a>`
+            : `<button class="pv-ebtn" style="background:rgba(255,255,255,.1);opacity:.6;cursor:default">Próximamente</button>`
+          }
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  const parts=S.hero.particles?`
+    <div style="position:absolute;top:22%;left:9%;width:7px;height:7px;border-radius:50%;background:${p};opacity:.45;filter:blur(2px)"></div>
+    <div style="position:absolute;top:65%;right:12%;width:5px;height:5px;border-radius:50%;background:${s};opacity:.4;filter:blur(2px)"></div>
+    <div style="position:absolute;top:38%;right:28%;width:6px;height:6px;border-radius:50%;background:${a};opacity:.35;filter:blur(2px)"></div>
+    <div style="position:absolute;top:78%;left:20%;width:4px;height:4px;border-radius:50%;background:${p};opacity:.3;filter:blur(1px)"></div>
+  `:'';
+
+  document.getElementById('previewDoc').innerHTML=`
+    <div style="background:${bg};min-height:100%;font-family:'Inter',sans-serif">
+
+      <!-- NAV -->
+      <div class="pv-nav">
+        <div class="pv-brand" style="color:${p}">🌹 La Comadre Lola</div>
+        <div class="pv-links">
+          <span class="pv-link">Eventos</span>
+          <span class="pv-link">Artistas</span>
+          <span class="pv-link">Galería</span>
+          <button class="pv-cta" style="background:linear-gradient(135deg,${p},${s})">Reservar</button>
+        </div>
+      </div>
+
+      <!-- HERO -->
+      <div class="pv-hero" id="pvhero" style="background:radial-gradient(ellipse at 50% 45%,${p}16 0%,${bg} 68%)">
+        ${parts}
+        <div style="position:relative;z-index:2">
+          <div class="pv-badge" style="color:${p};border:1px solid ${p}38;background:${p}10">${S.hero.badge}</div>
+          <div class="pv-h1">${S.hero.title1} <span style="color:${p}">${S.hero.title2}</span></div>
+          <div class="pv-sub">${S.hero.subtitle}</div>
+          <div class="pv-btns">
+            <button class="pv-btn-main" style="background:linear-gradient(135deg,${p},${s});box-shadow:0 8px 28px ${p}44">${S.hero.btn1}</button>
+            <button class="pv-btn-sec">${S.hero.btn2}</button>
+          </div>
+          ${S.hero.roses?`<div class="pv-roses">🌹🌹🌹</div>`:''}
+        </div>
+      </div>
+
+      <!-- EVENTOS -->
+      <div class="pv-section" id="pvevents" style="background:${bg}">
+        <span class="pv-lbl" style="color:${p}">🎤 Próximos Eventos</span>
+        <div class="pv-title">CARTELERA DE <span style="color:${p}">EVENTOS</span></div>
+        <div class="pv-desc">Los mejores artistas nacionales en vivo. ¡No te los pierdas!</div>
+        <div class="pv-divider" style="background:linear-gradient(90deg,${p},${s})"></div>
+        <div class="pv-events">${evHTML}</div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="pv-footer" id="pvfooter">
+        <div class="pv-fbrand" style="color:${p}">🌹 La Comadre Lola</div>
+        <div class="pv-ftag">Restaurant · Bar · Eventos — Quilicura</div>
+        <div class="pv-finfo">
+          📍 ${S.footer.address}<br>
+          📞 ${S.footer.phone}<br>
+          🕐 ${S.footer.hours}
+        </div>
+        <div class="pv-fbot">
+          <span>${S.footer.copyright}</span>
+          <span style="color:${p};font-size:10px;font-weight:700">● LIVE PREVIEW</span>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ═══════════════════════════════════════════════
+   DEVICE / CODE / EXPORT
+═══════════════════════════════════════════════ */
+function setDev(dev,btn){
+  document.querySelectorAll('.dev-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const sh=document.getElementById('previewShell');
+  sh.className='preview-shell';
+  if(dev!=='desktop')sh.classList.add(dev);
+}
+
+function toggleCode(){
+  codeOpen=!codeOpen;
+  document.getElementById('codeOut').classList.toggle('show',codeOpen);
+  refreshCode();
+}
+
+function refreshCode(){
+  if(!codeOpen)return;
+  const cssMap={'colors.primary':'--primary','colors.secondary':'--secondary','colors.accent':'--accent','colors.bg':'--bg'};
+  const lines=Object.entries(dirty).map(([k,v])=>{
+    if(cssMap[k])return`<span class="ck">${cssMap[k]}</span>: <span class="cv">${v}</span>;`;
+    return`<span class="ck">/* ${k} */</span>\n"<span class="cv">${String(v).replace(/</g,'&lt;')}</span>"`;
+  }).join('\n');
+  document.getElementById('codeOut').innerHTML=lines||'<span style="color:#666">Sin cambios todavía…</span>';
+}
+
+/* ═══════════════════════════════════════════════
+   FLYER UPLOAD HANDLERS
+═══════════════════════════════════════════════ */
+function triggerFlyerPick(i){
+  document.getElementById('flyerInput'+i).click();
+}
+
+function handleFlyerUpload(i, input){
+  const file = input.files[0];
+  if(!file) return;
+  if(file.size > 5 * 1024 * 1024){ showToast('El archivo supera los 5MB','error'); return; }
+  if(!file.type.startsWith('image/')){ showToast('Solo se permiten imágenes','error'); return; }
+
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    S.eventos[i].flyer = ev.target.result;
+    dirty['eventos.'+i+'.flyer'] = '[imagen subida]';
+    document.getElementById('dirtybadge').classList.add('show');
+    // Re-renderizar sección para mostrar preview del flyer en sidebar
+    renderSection(currentSection);
+    renderPreview();
+    showToast('✅ Flyer subido para "'+S.eventos[i].name+'"');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeFlyerImg(i){
+  S.eventos[i].flyer = '';
+  delete dirty['eventos.'+i+'.flyer'];
+  renderSection(currentSection);
+  renderPreview();
+  showToast('Flyer eliminado','info');
+}
+
+function exportChanges(){
+  const entries=Object.entries(dirty);
+  if(!entries.length){showToast('Sin cambios para exportar','info');return;}
+  const cssMap={'colors.primary':'--primary','colors.secondary':'--secondary','colors.accent':'--accent','colors.bg':'--bg'};
+  const css=entries.filter(([k])=>cssMap[k]).map(([k,v])=>`  ${cssMap[k]}: ${v};`).join('\n');
+  const js=entries.filter(([k])=>!cssMap[k]).map(([k,v])=>`  // ${k}: "${v}"`).join('\n');
+  const out=`/* ─── La Comadre Lola · Cambios desde CMS Editor ─── */\n\n/* styles.css — :root */\n:root {\n${css||'  /* sin cambios de color */'}\n}\n\n/* Textos y contenido: */\n${js||'  // sin cambios de texto'}`;
+  navigator.clipboard.writeText(out)
+    .then(()=>showToast(`✅ ${entries.length} cambio(s) copiado(s) al portapapeles`))
+    .catch(()=>showToast(`📋 ${entries.length} cambio(s) listo(s)`,'info'));
+}
+</script>
+</body>
+</html>

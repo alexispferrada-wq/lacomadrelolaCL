@@ -1,0 +1,47 @@
+# ══════════════════════════════════════════════════════
+# render.yaml — La Comadre Lola
+# Infrastructure as Code para Render.com
+# Subir este archivo a la RAÍZ del repositorio GitHub
+# ══════════════════════════════════════════════════════
+
+services:
+  - type: web
+    name: lacomadrelola-api
+    runtime: node
+    region: oregon
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    plan: free
+    autoDeploy: true
+
+    healthCheckPath: /health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+      - key: PORT
+        value: 3001
+
+      - key: MONGODB_URI
+        value: mongodb+srv://alexispferrada_db_user:TjSptX9141EEAdNU@cluster0.h3ej4ms.mongodb.net/lacomadrelola?retryWrites=true&w=majority&appName=Cluster0
+
+      - key: FRONTEND_URL
+        value: https://alexispferrada-wq.github.io
+
+      - key: ADMIN_USER
+        value: admin
+
+      # ── PENDIENTES — completar antes de hacer deploy ──
+      - key: EMAIL_USER
+        value: PENDIENTE_correo@gmail.com
+
+      - key: EMAIL_PASS
+        value: PENDIENTE_app_password_16chars
+
+      - key: ADMIN_EMAIL
+        value: PENDIENTE_correo_notificaciones@gmail.com
+
+      - key: ADMIN_PASS
+        value: PENDIENTE_contrasena_segura
