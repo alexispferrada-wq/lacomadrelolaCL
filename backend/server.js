@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const nodemailer = require('nodemailer');
 const path     = require('path');
 const jwt      = require('jsonwebtoken');
+const { v2: cloudinary } = require('cloudinary');
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -33,7 +34,33 @@ app.use(cors({
   },
   credentials: true,
 }));
-app.use(express.json());
+app.use(express.json({ limit: '12mb' }));
+
+/* ── CLOUDINARY ── */
+const CLOUDINARY_FOLDER = process.env.CLOUDINARY_FOLDER || 'lacomadrelola.cl';
+const CLOUDINARY_CONFIGURED =
+  Boolean(process.env.CLOUDINARY_CLOUD_NAME) &&
+  Boolean(process.env.CLOUDINARY_API_KEY) &&
+  Boolean(process.env.CLOUDINARY_API_SECRET);
+
+if (CLOUDINARY_CONFIGURED) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+    secure: true,
+  });
+  console.log('🖼 Cloudinary configurado');
+} else {
+  console.log('⚠️  Cloudinary no configurado');
+}
+
+function sanitizeFolderPart(value, fallback) {
+  return String(value || fallback)
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, '-')
+    .replace(/^-+|-+$/g, '') || fallback;
+}
 
 /* ── MONGODB ── */
 mongoose.connect(process.env.MONGODB_URI)
@@ -184,6 +211,58 @@ app.get('/api/admin/newsletter', requireAuth, async (_req, res) => {
     res.json({ ok: true, data: docs });
   } catch (err) {
     res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+/* POST /api/admin/upload-image */
+app.post('/api/admin/upload-image', requireAuth, async (req, res) => {
+  if (!CLOUDINARY_CONFIGURED) {
+    return res.status(503).json({
+      ok: false,
+      error: 'Cloudinary no configurado en el servidor',
+    });
+  }
+
+  try {
+    const { dataUrl, imageUrl, target } = req.body || {};
+    const source = dataUrl || imageUrl;
+
+    if (!source || typeof source !== 'string') {
+      return res.status(400).json({ ok: false, error: 'Imagen requerida' });
+    }
+
+    if (dataUrl && !dataUrl.startsWith('data:image/')) {
+      return res.status(400).json({ ok: false, error: 'Formato de imagen inválido' });
+    }
+
+    const subFolder = sanitizeFolderPart(target, 'general');
+    const folder = `${CLOUDINARY_FOLDER}/${subFolder}`;
+
+    const uploaded = await cloudinary.uploader.upload(source, {
+      resource_type: 'image',
+      folder,
+      overwrite: false,
+      unique_filename: true,
+      transformation: [{ quality: 'auto', fetch_format: 'auto' }],
+      tags: ['lacomadrelola', subFolder],
+    });
+
+    return res.json({
+      ok: true,
+      url: uploaded.secure_url,
+      publicId: uploaded.public_id,
+      width: uploaded.width,
+      height: uploaded.height,
+      bytes: uploaded.bytes,
+      format: uploaded.format,
+    });
+  } catch (err) {
+    console.error('Cloudinary upload error:', err.message);
+    return res.status(500).json({
+      ok: false,
+      error: 'No se pudo subir la imagen a Cloudinary',
+      detail: err.message,
+    });
   }
 });
 

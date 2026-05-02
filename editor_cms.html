@@ -201,6 +201,9 @@ html,body{height:100%;font-family:var(--fb);background:var(--bg);color:var(--tex
 /* CHANGES BADGE */
 .changes-badge{font-size:11px;background:rgba(78,205,196,.12);color:var(--accent);border:1px solid rgba(78,205,196,.25);border-radius:20px;padding:3px 12px;font-weight:600;display:none;}
 .changes-badge.show{display:inline-block;}
+.changes-badge.saving{background:rgba(255,152,0,.12);color:var(--warn);border-color:rgba(255,152,0,.25);display:inline-block;}
+.changes-badge.saved{background:rgba(76,175,80,.12);color:var(--success);border-color:rgba(76,175,80,.25);display:inline-block;}
+.changes-badge.error{background:rgba(244,67,54,.12);color:#ff6b6b;border-color:rgba(244,67,54,.25);display:inline-block;}
 .code-toggle-btn{padding:6px 12px;background:transparent;border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-size:11px;cursor:pointer;font-family:var(--fb);transition:all var(--trans);}
 .code-toggle-btn:hover{border-color:var(--accent);color:var(--accent);}
 .code-block{display:none;background:#060609;border:1px solid var(--border);border-radius:10px;padding:12px;font-family:monospace;font-size:11px;color:#a0a0b0;white-space:pre-wrap;word-break:break-all;max-height:180px;overflow-y:auto;line-height:1.7;}
@@ -432,7 +435,7 @@ html,body{height:100%;font-family:var(--fb);background:var(--bg);color:var(--tex
       <div class="sidebar-body" id="editorBody"></div>
       <div class="sidebar-foot">
         <div style="display:flex;align-items:center;justify-content:space-between;">
-          <span class="changes-badge" id="dirtybadge">● Cambios sin guardar</span>
+          <span class="changes-badge" id="dirtybadge">● Guardado automático</span>
           <button class="code-toggle-btn" onclick="toggleCode()">{ } CSS</button>
         </div>
         <div class="code-block" id="codeOut"></div>
@@ -576,6 +579,57 @@ const S = {
 let currentSection='hero';
 const dirty={};
 let codeOpen=false;
+const EDITOR_STATE_KEY='lola_editor_state';
+let _saveTimer=null;
+
+function setSaveBadge(state, message=''){
+  const b=document.getElementById('dirtybadge');
+  if(!b) return;
+  b.className='changes-badge';
+  if(state==='saving'){ b.classList.add('saving'); b.textContent=message||'● Guardando...'; return; }
+  if(state==='saved'){  b.classList.add('saved');  b.textContent=message||'✓ Guardado automático'; return; }
+  if(state==='error'){  b.classList.add('error');  b.textContent=message||'⚠ Error al guardar'; return; }
+  b.classList.add('show');
+  b.textContent=message||'● Cambios pendientes';
+}
+
+function persistEditorState(showToastOnSuccess=false){
+  try {
+    localStorage.setItem(EDITOR_STATE_KEY, JSON.stringify(S));
+    const hh=new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+    setSaveBadge('saved',`✓ Guardado automático · ${hh}`);
+    if(showToastOnSuccess) showToast('✅ Cambios guardados automáticamente');
+    return true;
+  } catch (err) {
+    console.error('AutoSave error:', err);
+    setSaveBadge('error','⚠ No se pudo guardar (almacenamiento lleno)');
+    showToast('No se pudo guardar. Reduce cantidad/tamaño de imágenes','error');
+    return false;
+  }
+}
+
+function queueAutoSave(){
+  setSaveBadge('saving','● Guardando...');
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(()=>persistEditorState(false),250);
+}
+
+function loadEditorState(){
+  try {
+    const stored=localStorage.getItem(EDITOR_STATE_KEY);
+    if(stored){
+      const data=JSON.parse(stored);
+      if(data && typeof data==='object'){
+        if(data.colors)   S.colors=data.colors;
+        if(data.hero)     S.hero=data.hero;
+        if(data.eventos)  S.eventos=data.eventos;
+        if(data.footer)   S.footer=data.footer;
+        if(data.carousel) S.carousel=data.carousel;
+        if(data.galeria)  S.galeria=data.galeria;
+      }
+    }
+  } catch {}
+}
 
 /* ═══════════════════════════════════════════════
    UTILS
@@ -786,9 +840,11 @@ const SECTIONS={
    INIT EDITOR
 ═══════════════════════════════════════════════ */
 function initEditor(){
+  loadEditorState();
   // Cargar carrusel y galería desde localStorage
   try { const c=localStorage.getItem('lola_carousel'); if(c) S.carousel=JSON.parse(c)||[]; } catch{}
   try { const g=localStorage.getItem('lola_galeria');  if(g) S.galeria=JSON.parse(g)||[];  } catch{}
+  setSaveBadge('saved','✓ Guardado automático activo');
   renderSection('hero');
   renderPreview();
 }
@@ -826,14 +882,16 @@ function bindInputs(){
         if(sw&&/^#[0-9a-fA-F]{6}$/.test(val))sw.value=val;
       }
       dirty[k]=val;
-      document.getElementById('dirtybadge').classList.add('show');
+      setSaveBadge('show','● Cambios pendientes');
       renderPreview();
       refreshCode();
+      queueAutoSave();
     });
     if(el.type==='checkbox')el.addEventListener('change',()=>{
       dset(S,k,el.checked);dirty[k]=el.checked;
-      document.getElementById('dirtybadge').classList.add('show');
+      setSaveBadge('show','● Cambios pendientes');
       renderPreview();refreshCode();
+      queueAutoSave();
     });
   });
 }
@@ -843,8 +901,9 @@ function updateColor(k,v){
   const hex=document.querySelector(`.color-hex[data-k="${k}"]`);
   if(hex){hex.value=v;hex.classList.add('dirty');}
   dirty[k]=v;
-  document.getElementById('dirtybadge').classList.add('show');
+  setSaveBadge('show','● Cambios pendientes');
   renderPreview();refreshCode();
+  queueAutoSave();
 }
 
 /* ═══════════════════════════════════════════════
@@ -1024,27 +1083,71 @@ function refreshCode(){
 /* ═══════════════════════════════════════════════
    FLYER UPLOAD HANDLERS
 ═══════════════════════════════════════════════ */
+function fileToDataUrl(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=()=>resolve(r.result);
+    r.onerror=()=>reject(new Error('No se pudo leer el archivo'));
+    r.readAsDataURL(file);
+  });
+}
+
+async function uploadImageViaApi({ file, imageUrl, target }){
+  const token=localStorage.getItem('lola_token');
+  if(!token) throw new Error('Sesión expirada. Vuelve a iniciar sesión.');
+
+  let payload={ target };
+  if(file){
+    payload.dataUrl=await fileToDataUrl(file);
+  } else if(imageUrl){
+    payload.imageUrl=imageUrl;
+  } else {
+    throw new Error('Imagen no válida');
+  }
+
+  const res=await fetch(API + '/api/admin/upload-image',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      Authorization:'Bearer ' + token,
+    },
+    body:JSON.stringify(payload),
+  });
+
+  const data=await res.json().catch(()=>({ ok:false, error:'Respuesta inválida del servidor' }));
+  if(!res.ok || !data.ok){
+    if(res.status===401) throw new Error('Sesión expirada. Inicia sesión nuevamente.');
+    throw new Error(data.error || data.detail || 'Error subiendo imagen a Cloudinary');
+  }
+  return data.url;
+}
+
 function triggerFlyerPick(i){
   document.getElementById('flyerInput'+i).click();
 }
 
-function handleFlyerUpload(i, input){
+async function handleFlyerUpload(i, input){
   const file = input.files[0];
   if(!file) return;
   if(file.size > 5 * 1024 * 1024){ showToast('El archivo supera los 5MB','error'); return; }
   if(!file.type.startsWith('image/')){ showToast('Solo se permiten imágenes','error'); return; }
 
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    S.eventos[i].flyer = ev.target.result;
+  try {
+    setSaveBadge('saving','● Subiendo imagen...');
+    const cloudUrl = await uploadImageViaApi({ file, target:'eventos' });
+    S.eventos[i].flyer = cloudUrl;
     dirty['eventos.'+i+'.flyer'] = '[imagen subida]';
-    document.getElementById('dirtybadge').classList.add('show');
-    // Re-renderizar sección para mostrar preview del flyer en sidebar
+    setSaveBadge('show','● Cambios pendientes');
     renderSection(currentSection);
     renderPreview();
-    showToast('✅ Flyer subido para "'+S.eventos[i].name+'"');
-  };
-  reader.readAsDataURL(file);
+    queueAutoSave();
+    showToast('✅ Flyer subido a Cloudinary y guardado');
+  } catch (err) {
+    setSaveBadge('error','⚠ Error de subida');
+    showToast(err.message || 'No se pudo subir imagen','error');
+  } finally {
+    input.value='';
+  }
 }
 
 function removeFlyerImg(i){
@@ -1058,36 +1161,58 @@ function removeFlyerImg(i){
 /* ═══════════════════════════════════════════════
    CAROUSEL HANDLERS
 ═══════════════════════════════════════════════ */
-function saveCarousel(){ localStorage.setItem('lola_carousel', JSON.stringify(S.carousel)); }
+function saveCarousel(){
+  try {
+    localStorage.setItem('lola_carousel', JSON.stringify(S.carousel));
+    return persistEditorState(false);
+  } catch {
+    setSaveBadge('error','⚠ No se pudo guardar carrusel');
+    showToast('No se pudo guardar carrusel (almacenamiento lleno)','error');
+    return false;
+  }
+}
 
 function triggerCarouselPick(){ document.getElementById('carouselInput').click(); }
 
-function addCarouselUrl(){
+async function addCarouselUrl(){
   const inp = document.getElementById('carouselUrlInput');
   const url = (inp?.value || '').trim();
   if (!url) { showToast('Ingresa una URL válida','error'); return; }
   if (S.carousel.length >= 6) { showToast('Máximo 6 slides','error'); return; }
-  S.carousel.push({ src: url });
-  saveCarousel();
+  try {
+    setSaveBadge('saving','● Subiendo imagen...');
+    const cloudUrl = await uploadImageViaApi({ imageUrl:url, target:'carrusel' });
+    S.carousel.push({ src: cloudUrl });
+  } catch (err) {
+    setSaveBadge('error','⚠ Error de subida');
+    showToast(err.message || 'No se pudo subir imagen','error');
+    return;
+  }
+  if (!saveCarousel()) { S.carousel.pop(); return; }
   renderSection('carrusel');
   renderPreview();
-  showToast('✅ Slide agregado');
+  showToast('✅ Slide subido a Cloudinary y guardado');
 }
 
-function handleCarouselUpload(input){
+async function handleCarouselUpload(input){
   const file = input.files[0];
   if (!file) return;
   if (file.size > 5*1024*1024) { showToast('El archivo supera los 5MB','error'); return; }
   if (!file.type.startsWith('image/')) { showToast('Solo se permiten imágenes','error'); return; }
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    S.carousel.push({ src: ev.target.result });
-    saveCarousel();
+  try {
+    setSaveBadge('saving','● Subiendo imagen...');
+    const cloudUrl = await uploadImageViaApi({ file, target:'carrusel' });
+    S.carousel.push({ src: cloudUrl });
+    if (!saveCarousel()) { S.carousel.pop(); return; }
     renderSection('carrusel');
     renderPreview();
-    showToast('✅ Slide agregado al carrusel');
-  };
-  reader.readAsDataURL(file);
+    showToast('✅ Slide subido a Cloudinary y guardado');
+  } catch (err) {
+    setSaveBadge('error','⚠ Error de subida');
+    showToast(err.message || 'No se pudo subir imagen','error');
+  } finally {
+    input.value='';
+  }
 }
 
 function removeCarouselSlide(i){
@@ -1095,7 +1220,7 @@ function removeCarouselSlide(i){
   saveCarousel();
   renderSection('carrusel');
   renderPreview();
-  showToast('Slide eliminado','info');
+  showToast('Slide eliminado y guardado','info');
 }
 
 function clearCarousel(){
@@ -1104,46 +1229,76 @@ function clearCarousel(){
   saveCarousel();
   renderSection('carrusel');
   renderPreview();
-  showToast('Carrusel limpiado','info');
+  showToast('Carrusel limpiado y guardado','info');
 }
 
 /* ═══════════════════════════════════════════════
    GALERÍA HANDLERS
 ═══════════════════════════════════════════════ */
-function saveGaleria(){ localStorage.setItem('lola_galeria', JSON.stringify(S.galeria)); }
+function saveGaleria(){
+  try {
+    localStorage.setItem('lola_galeria', JSON.stringify(S.galeria));
+    return persistEditorState(false);
+  } catch {
+    setSaveBadge('error','⚠ No se pudo guardar galería');
+    showToast('No se pudo guardar galería (almacenamiento lleno)','error');
+    return false;
+  }
+}
 
 function triggerGaleriaPick(){ document.getElementById('galeriaInput').click(); }
 
-function addGaleriaUrl(){
+async function addGaleriaUrl(){
   const inp = document.getElementById('galeriaUrlInput');
   const url = (inp?.value || '').trim();
   if (!url) { showToast('Ingresa una URL válida','error'); return; }
   if (S.galeria.length >= 20) { showToast('Máximo 20 fotos','error'); return; }
-  S.galeria.push({ src: url, caption: '' });
-  saveGaleria();
+  try {
+    setSaveBadge('saving','● Subiendo imagen...');
+    const cloudUrl = await uploadImageViaApi({ imageUrl:url, target:'galeria' });
+    S.galeria.push({ src: cloudUrl, caption: '' });
+  } catch (err) {
+    setSaveBadge('error','⚠ Error de subida');
+    showToast(err.message || 'No se pudo subir imagen','error');
+    return;
+  }
+  if (!saveGaleria()) { S.galeria.pop(); return; }
   renderSection('galeria');
   renderPreview();
-  showToast('✅ Foto agregada');
+  showToast('✅ Foto subida a Cloudinary y guardada');
 }
 
-function handleGaleriaUpload(input){
+async function handleGaleriaUpload(input){
   const files = Array.from(input.files);
   if (!files.length) return;
   let loaded = 0;
+  let failed = 0;
   const space = 20 - S.galeria.length;
-  files.slice(0, space).forEach(file => {
-    if (!file.type.startsWith('image/') || file.size > 5*1024*1024) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      S.galeria.push({ src: ev.target.result, caption: '' });
+  const selected = files.slice(0, space);
+  setSaveBadge('saving','● Subiendo imágenes...');
+
+  for (const file of selected) {
+    if (!file.type.startsWith('image/') || file.size > 5*1024*1024) { failed++; continue; }
+    try {
+      const cloudUrl = await uploadImageViaApi({ file, target:'galeria' });
+      S.galeria.push({ src: cloudUrl, caption: '' });
+      if (!saveGaleria()) { S.galeria.pop(); failed++; continue; }
       loaded++;
-      saveGaleria();
-      renderSection('galeria');
-      renderPreview();
-      if (loaded === 1) showToast(`✅ ${Math.min(files.length,space)} foto(s) agregada(s)`);
-    };
-    reader.readAsDataURL(file);
-  });
+    } catch {
+      failed++;
+    }
+  }
+
+  renderSection('galeria');
+  renderPreview();
+
+  if (loaded > 0 && failed === 0) showToast(`✅ ${loaded} foto(s) subida(s) a Cloudinary y guardada(s)`);
+  if (loaded > 0 && failed > 0) showToast(`⚠ ${loaded} foto(s) subida(s), ${failed} fallaron`,'info');
+  if (loaded === 0) {
+    setSaveBadge('error','⚠ Error de subida');
+    showToast('No se pudo subir ninguna foto','error');
+  }
+  input.value='';
 }
 
 function removeGaleriaFoto(i){
@@ -1151,7 +1306,7 @@ function removeGaleriaFoto(i){
   saveGaleria();
   renderSection('galeria');
   renderPreview();
-  showToast('Foto eliminada','info');
+  showToast('Foto eliminada y guardada','info');
 }
 
 function updateGaleriaCaption(i, val){
@@ -1165,7 +1320,7 @@ function clearGaleria(){
   saveGaleria();
   renderSection('galeria');
   renderPreview();
-  showToast('Galería limpiada','info');
+  showToast('Galería limpiada y guardada','info');
 }
 
 function exportChanges(){

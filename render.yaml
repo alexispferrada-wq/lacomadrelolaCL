@@ -33,6 +33,21 @@ services:
       - key: ADMIN_USER
         value: admin
 
+      - key: JWT_SECRET
+        value: PENDIENTE_jwt_secret_largo_y_unico
+
+      - key: CLOUDINARY_CLOUD_NAME
+        value: PENDIENTE_cloud_name
+
+      - key: CLOUDINARY_API_KEY
+        value: PENDIENTE_api_key
+
+      - key: CLOUDINARY_API_SECRET
+        value: PENDIENTE_api_secret
+
+      - key: CLOUDINARY_FOLDER
+        value: lacomadrelola.cl
+
       # ── PENDIENTES — completar antes de hacer deploy ──
       - key: EMAIL_USER
         value: PENDIENTE_correo@gmail.com
