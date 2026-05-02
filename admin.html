@@ -5,15 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin — La Comadre Lola</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+@font-face{
+  font-family:'BudmoJiggler';
+  src:url('assets/BudmoJiggler.TTF') format('truetype');
+  font-weight:normal;font-style:normal;font-display:swap;
+}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 :root{--p:#E8913A;--s:#D4547B;--a:#4ECDC4;--bg:#0d0d12;--bg2:rgba(15,15,22,.98);--bg3:#0a0a10;--tx:#f0f0f0;--tm:#8a8aa0;--bd:rgba(255,255,255,.07);--ok:#4CAF50;--err:#f44336;--warn:#ff9800;}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;}
 
 /* ── TOP NAV ── */
 .topbar{height:60px;background:var(--bg2);border-bottom:1px solid rgba(232,145,58,.2);display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:100;}
-.topbar-logo{font-family:'Righteous',cursive;font-size:17px;color:var(--p);display:flex;align-items:center;gap:8px;}
+.topbar-logo{font-family:'BudmoJiggler',cursive;font-size:17px;color:var(--p);display:flex;align-items:center;gap:8px;}
 .topbar-logo span{font-family:'Inter',sans-serif;font-size:12px;color:var(--tm);font-weight:400;}
 .topbar-right{display:flex;align-items:center;gap:12px;}
 .tb-user{font-size:12px;color:var(--tm);}
@@ -32,7 +37,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:36px;}
 .stat-card{background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:22px 24px;}
 .stat-label{font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--tm);margin-bottom:8px;}
-.stat-value{font-size:34px;font-weight:700;font-family:'Righteous',cursive;}
+.stat-value{font-size:34px;font-weight:700;font-family:'BudmoJiggler',cursive;}
 .stat-sub{font-size:11px;color:var(--tm);margin-top:4px;}
 .stat-card.primary .stat-value{color:var(--p);}
 .stat-card.secondary .stat-value{color:var(--s);}
@@ -100,6 +105,22 @@ tr:hover td{background:rgba(255,255,255,.02);}
 .toast.ok{background:var(--ok);color:#fff;}
 .toast.err{background:var(--err);color:#fff;}
 .toast.info{background:rgba(78,205,196,.9);color:#0d0d12;}
+@media(max-width:768px){
+  .main{padding:20px 14px;}
+  .tbl-wrap{overflow-x:auto;}
+  table{min-width:600px;}
+  .tabs{overflow-x:auto;flex-wrap:nowrap;gap:2px;}
+  .tab{white-space:nowrap;padding:8px 14px;font-size:11px;}
+  .topbar{padding:0 14px;}
+  .tbl-search{width:150px;}
+  .stats{grid-template-columns:repeat(2,1fr);}
+}
+@media(max-width:480px){
+  .stats{grid-template-columns:1fr 1fr;}
+  .stat-card{padding:16px;}
+  .stat-value{font-size:26px;}
+  .pagination{flex-direction:column;gap:10px;align-items:flex-start;}
+}
 </style>
 </head>
 <body>

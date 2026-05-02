@@ -5,8 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login — La Comadre Lola</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+@font-face{
+  font-family:'BudmoJiggler';
+  src:url('assets/BudmoJiggler.TTF') format('truetype');
+  font-weight:normal;font-style:normal;font-display:swap;
+}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 :root{--p:#E8913A;--s:#D4547B;--a:#4ECDC4;--bg:#0d0d12;--tx:#f0f0f0;--tm:#8a8aa0;--bd:rgba(255,255,255,.07);}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
@@ -17,7 +22,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .card::after{content:'';position:absolute;bottom:-50px;left:-50px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(212,84,123,.08),transparent 70%);pointer-events:none;}
 
 .logo{text-align:center;margin-bottom:36px;}
-.logo-brand{font-family:'Righteous',cursive;font-size:24px;color:var(--p);}
+.logo-brand{font-family:'BudmoJiggler',cursive;font-size:24px;color:var(--p);}
 .logo-sub{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--tm);margin-top:4px;}
 
 .fld{margin-bottom:18px;}
@@ -35,6 +40,13 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
 .back{text-align:center;margin-top:20px;font-size:12px;color:var(--tm);}
 .back a{color:var(--p);cursor:pointer;}
+@media(max-width:480px){
+  .card{padding:36px 24px;}
+  .logo-brand{font-size:20px;}
+}
+@media(max-width:360px){
+  .card{padding:28px 16px;}
+}
 </style>
 </head>
 <body>

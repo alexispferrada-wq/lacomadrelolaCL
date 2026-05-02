@@ -7,15 +7,20 @@
 <meta name="description" content="Restaurant, Bar y Eventos en Quilicura. Shows en vivo, los mejores DJs y la mejor gastronomia. Reserva tu mesa ahora.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+@font-face{
+  font-family:'BudmoJiggler';
+  src:url('assets/BudmoJiggler.TTF') format('truetype');
+  font-weight:normal;font-style:normal;font-display:swap;
+}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 :root{
   --p:#E8913A;--s:#D4547B;--a:#4ECDC4;
   --bg:#0d0d12;--bg2:rgba(18,18,28,.97);--bg3:#0f0f18;
   --tx:#f0f0f0;--tm:#8a8aa0;--bd:rgba(255,255,255,.07);
   --r:14px;--tr:.25s cubic-bezier(.25,.46,.45,.94);
-  --ft:'Righteous',cursive;--fb:'Inter',sans-serif;
+  --ft:'BudmoJiggler',cursive;--fb:'Inter',sans-serif;
   --bg-pattern:url('assets/fondo-adjunto.png');
 }
 html{scroll-behavior:smooth;}
@@ -103,7 +108,7 @@ a{text-decoration:none;color:inherit;}
 }
 .hero-h1 span{color:var(--p);}
 .hero-sub{
-  font-size:clamp(14px,2vw,17px);color:var(--tm);
+  font-size:clamp(14px,2vw,17px);color:#ffffff;
   margin-bottom:40px;line-height:1.6;
 }
 .hero-btns{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-bottom:32px;}
@@ -138,13 +143,13 @@ a{text-decoration:none;color:inherit;}
 .hero-carousel{position:absolute;inset:0;z-index:0;}
 .hero-carousel-slide{
   position:absolute;inset:0;
-  background-size:cover;background-position:center center;
+  background-size:100% auto;background-position:center top;
   opacity:0;transition:opacity 1.4s ease-in-out;
 }
 .hero-carousel-slide.active{opacity:1;}
 .hero-carousel-overlay{
   position:absolute;inset:0;z-index:1;pointer-events:none;
-  background:linear-gradient(to bottom,rgba(13,13,18,.28) 0%,rgba(13,13,18,.46) 52%,rgba(13,13,18,.78) 100%);
+  background:linear-gradient(to bottom,rgba(13,13,18,.52) 0%,rgba(13,13,18,.65) 52%,rgba(13,13,18,.88) 100%);
 }
 .hero-carousel-dots{
   position:absolute;bottom:72px;left:50%;transform:translateX(-50%);
@@ -385,15 +390,38 @@ footer{background:#07070e;padding:56px 40px 24px;border-top:1px solid var(--bd);
 @media(max-width:900px){
   .nav-links{display:none;}
   .nav-burger{display:flex;}
-  .reservas-inner{grid-template-columns:1fr;}
+  .reservas-inner{grid-template-columns:1fr;gap:32px;}
   .reservas-info{position:static;}
   .footer-inner{grid-template-columns:1fr;}
+  .hero-btns{flex-direction:column;align-items:center;}
+  .btn-main,.btn-sec{width:100%;max-width:320px;}
+}
+@media(max-width:768px){
+  .hero-carousel-slide{background-size:cover;background-position:center center;}
+  section{padding:70px 24px;}
+  footer{padding:48px 24px 20px;}
+  .newsletter{padding:60px 24px;}
+  .reserva-form{padding:24px 20px;}
+  .ev-name{font-size:15px;}
+  .tabs-bar{overflow-x:auto;flex-wrap:nowrap;}
 }
 @media(max-width:600px){
-  section{padding:70px 20px;}
-  .nav{padding:0 20px;}
+  section{padding:60px 16px;}
+  .nav{padding:0 16px;}
+  footer{padding:40px 16px 16px;}
+  .newsletter{padding:48px 16px;}
   .form-grid{grid-template-columns:1fr;}
   .footer-bot{flex-direction:column;gap:8px;text-align:center;}
+  .reserva-form{padding:20px 16px;}
+  .hero-h1{font-size:clamp(2.2rem,10vw,3.5rem);}
+  .hero-badge{font-size:9px;letter-spacing:2px;padding:5px 14px;}
+  .lightbox-prev{left:8px;}
+  .lightbox-next{right:8px;}
+  .lightbox-img{max-width:96vw;max-height:78vh;}
+  .momentos-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;}
+  .eventos-grid{grid-template-columns:1fr;}
+  .nl-form{flex-direction:column;align-items:stretch;}
+  .nl-input,.nl-btn{width:100%;}
 }
 </style>
 </head>
@@ -440,7 +468,7 @@ footer{background:#07070e;padding:56px 40px 24px;border-top:1px solid var(--bd);
   <div class="hero-carousel-dots" id="carouselDots"></div>
   <div class="hero-scroll">
     <div class="hero-scroll-dot"></div>
-    scroll
+    desliza
   </div>
 </section>
 

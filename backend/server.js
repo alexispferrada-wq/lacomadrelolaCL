@@ -1,15 +1,30 @@
 require('dotenv').config({ path: require('path').join(__dirname, '.env') });
-const express  = require('express');
-const cors     = require('cors');
-const mongoose = require('mongoose');
+const express    = require('express');
+const cors       = require('cors');
+const mongoose   = require('mongoose');
 const nodemailer = require('nodemailer');
-const path     = require('path');
-const jwt      = require('jsonwebtoken');
+const path       = require('path');
+const jwt        = require('jsonwebtoken');
+const helmet     = require('helmet');
+const rateLimit  = require('express-rate-limit');
 const { v2: cloudinary } = require('cloudinary');
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || 'dev_secret_cambiar';
+if (JWT_SECRET === 'dev_secret_cambiar' && process.env.NODE_ENV === 'production') {
+  console.error('⛔ JWT_SECRET no configurado para producción. Deteniéndose.');
+  process.exit(1);
+}
+
+/* ── SECURITY HEADERS ── */
+app.use(helmet({ contentSecurityPolicy: false }));
+
+/* ── RATE LIMITING ── */
+const generalLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 200, standardHeaders: true, legacyHeaders: false });
+const authLimiter    = rateLimit({ windowMs: 15 * 60 * 1000, max: 20,  standardHeaders: true, legacyHeaders: false, message: { error: 'Demasiados intentos. Intenta en 15 minutos.' } });
+const uploadLimiter  = rateLimit({ windowMs: 60 * 1000,      max: 30,  standardHeaders: true, legacyHeaders: false });
+app.use(generalLimiter);
 
 /* ── STATIC FILES ── */
 const staticDir = process.env.STATIC_DIR || path.join(__dirname, '..');
@@ -34,7 +49,7 @@ app.use(cors({
   },
   credentials: true,
 }));
-app.use(express.json({ limit: '12mb' }));
+app.use(express.json({ limit: '20mb' }));
 
 /* ── CLOUDINARY ── */
 const CLOUDINARY_FOLDER = process.env.CLOUDINARY_FOLDER || 'lacomadrelola.cl';
@@ -131,7 +146,7 @@ app.get('/editor', (_req, res) => res.sendFile('editor_cms.html', { root: static
 ══════════════════════════════════════════ */
 
 /* POST /api/auth/login */
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', authLimiter, (req, res) => {
   const { usuario, password } = req.body;
   if (
     usuario  === (process.env.ADMIN_USER || 'admin') &&
@@ -215,7 +230,7 @@ app.get('/api/admin/newsletter', requireAuth, async (_req, res) => {
 });
 
 /* POST /api/admin/upload-image */
-app.post('/api/admin/upload-image', requireAuth, async (req, res) => {
+app.post('/api/admin/upload-image', requireAuth, uploadLimiter, async (req, res) => {
   if (!CLOUDINARY_CONFIGURED) {
     return res.status(503).json({
       ok: false,

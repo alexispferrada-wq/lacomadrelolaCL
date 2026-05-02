@@ -5,8 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CMS Editor — La Comadre Lola</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<link href="https://fonts.googleapis.com/css2?family=Righteous&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+@font-face{
+  font-family:'BudmoJiggler';
+  src:url('assets/BudmoJiggler.TTF') format('truetype');
+  font-weight:normal;font-style:normal;font-display:swap;
+}
 /* ── RESET & ROOT ── */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 :root{
@@ -14,7 +19,7 @@
   --bg:#0d0d12;--bg-card:rgba(18,18,28,0.97);--bg-panel:#0f0f18;
   --text:#f0f0f0;--text-muted:#8a8aa0;--border:rgba(255,255,255,0.07);
   --radius:14px;--success:#4CAF50;--danger:#f44336;--warn:#ff9800;
-  --ft:'Righteous',cursive;--fb:'Inter',sans-serif;
+  --ft:'BudmoJiggler',cursive;--fb:'Inter',sans-serif;
   --nav-h:60px;--sidebar-w:320px;--trans:.25s cubic-bezier(.25,.46,.45,.94);
 }
 html,body{height:100%;font-family:var(--fb);background:var(--bg);color:var(--text);overflow:hidden;}
@@ -255,7 +260,7 @@ html,body{height:100%;font-family:var(--fb);background:var(--bg);color:var(--tex
   padding:0 28px;height:58px;display:flex;align-items:center;
   justify-content:space-between;z-index:10;backdrop-filter:blur(20px);
 }
-.pv-brand{font-family:'Righteous',cursive;font-size:18px;}
+.pv-brand{font-family:'BudmoJiggler',cursive;font-size:18px;}
 .pv-links{display:flex;gap:18px;align-items:center;}
 .pv-link{font-size:11px;font-weight:500;color:#8a8aa0;letter-spacing:1px;text-transform:uppercase;cursor:pointer;}
 .pv-cta{padding:6px 16px;border-radius:20px;font-size:11px;font-weight:700;font-family:'Inter',sans-serif;border:none;cursor:pointer;color:#fff;}
@@ -270,7 +275,7 @@ html,body{height:100%;font-family:var(--fb);background:var(--bg);color:var(--tex
   display:inline-block;font-size:11px;font-weight:600;letter-spacing:3px;
   text-transform:uppercase;border-radius:20px;padding:5px 16px;margin-bottom:22px;
 }
-.pv-h1{font-family:'Righteous',cursive;font-size:clamp(2rem,5vw,3.4rem);color:#fff;line-height:1.08;margin-bottom:12px;}
+.pv-h1{font-family:'BudmoJiggler',cursive;font-size:clamp(2rem,5vw,3.4rem);color:#fff;line-height:1.08;margin-bottom:12px;}
 .pv-sub{color:#8a8aa0;font-size:14px;margin-bottom:32px;font-family:'Inter',sans-serif;}
 .pv-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
 .pv-btn-main{padding:13px 30px;border-radius:50px;font-size:13px;font-weight:700;border:none;cursor:pointer;color:#fff;font-family:'Inter',sans-serif;}
@@ -279,7 +284,7 @@ html,body{height:100%;font-family:var(--fb);background:var(--bg);color:var(--tex
 
 .pv-section{padding:60px 28px;}
 .pv-lbl{font-size:10px;font-weight:700;letter-spacing:4px;text-transform:uppercase;display:block;margin-bottom:10px;font-family:'Inter',sans-serif;}
-.pv-title{font-family:'Righteous',cursive;font-size:clamp(1.6rem,3vw,2.2rem);color:#fff;margin-bottom:8px;}
+.pv-title{font-family:'BudmoJiggler',cursive;font-size:clamp(1.6rem,3vw,2.2rem);color:#fff;margin-bottom:8px;}
 .pv-desc{color:#8a8aa0;font-size:13px;margin-bottom:26px;max-width:500px;font-family:'Inter',sans-serif;}
 .pv-divider{width:50px;height:3px;border-radius:2px;margin-bottom:28px;}
 
@@ -371,9 +376,22 @@ html,body{height:100%;font-family:var(--fb);background:var(--bg);color:var(--tex
 .toast.success{background:var(--success);color:#fff;}
 .toast.error{background:var(--danger);color:#fff;}
 .toast.info{background:rgba(78,205,196,.9);color:#0d0d12;}
+/* ── RESPONSIVE ── */
+.mobile-warn{display:none;position:fixed;inset:0;z-index:99999;background:#0d0d12;align-items:center;justify-content:center;text-align:center;padding:32px;flex-direction:column;gap:16px;}
+.mobile-warn p{color:#f0f0f0;font-size:15px;font-family:'Inter',sans-serif;line-height:1.6;max-width:280px;}
+.mobile-warn span{font-size:48px;}
+@media(max-width:900px){
+  .mobile-warn{display:flex;}
+  body>*:not(.mobile-warn){display:none !important;}
+}
 </style>
 </head>
 <body>
+<!-- aviso pantalla pequeña -->
+<div class="mobile-warn">
+  <span>🖥️</span>
+  <p>El editor CMS está diseñado para pantallas de escritorio.<br>Por favor usa un computador para editar el contenido.</p>
+</div>
 
 <!-- ═══════════════ LOGIN SCREEN ═══════════════ -->
 <div id="loginScreen">

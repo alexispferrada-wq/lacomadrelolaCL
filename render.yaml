@@ -34,19 +34,22 @@ services:
         value: admin
 
       - key: JWT_SECRET
-        value: PENDIENTE_jwt_secret_largo_y_unico
+        value: 4fafc6c3f09619e9427a0454d56b452a8b145c67578f74c293a5bf1421589a63e567a69b55d62e3cb6d2f1fc40988140
 
       - key: CLOUDINARY_CLOUD_NAME
-        value: PENDIENTE_cloud_name
+        value: dqsz4ua73
 
       - key: CLOUDINARY_API_KEY
-        value: PENDIENTE_api_key
+        value: 431387225583344
 
       - key: CLOUDINARY_API_SECRET
-        value: PENDIENTE_api_secret
+        value: PnXMYBEjBv1MS2Mg2MesE1YTPXg
 
       - key: CLOUDINARY_FOLDER
         value: lacomadrelola.cl
+
+      - key: ADMIN_PASS
+        value: lola2026
 
       # ── PENDIENTES — completar antes de hacer deploy ──
       - key: EMAIL_USER
