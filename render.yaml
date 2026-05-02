@@ -9,8 +9,8 @@ services:
     name: lacomadrelola-api
     runtime: node
     region: oregon
-    buildCommand: npm install --prefix backend
-    startCommand: node backend/server.js
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && node server.js
     plan: free
     autoDeploy: true
 
