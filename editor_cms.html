@@ -408,6 +408,8 @@ html,body{height:100%;font-family:var(--fb);background:var(--bg);color:var(--tex
     <div class="topnav-logo">🌹 <span>La Comadre Lola — Editor CMS</span></div>
     <div class="topnav-sections" id="secTabs">
       <button class="sec-btn active" onclick="gotoSection('hero',this)">🏠 Hero</button>
+      <button class="sec-btn" onclick="gotoSection('carrusel',this)">🖼 Carrusel</button>
+      <button class="sec-btn" onclick="gotoSection('galeria',this)">📸 Galería</button>
       <button class="sec-btn" onclick="gotoSection('eventos',this)">🎤 Eventos</button>
       <button class="sec-btn" onclick="gotoSection('colores',this)">🎨 Colores</button>
       <button class="sec-btn" onclick="gotoSection('footer',this)">📍 Footer</button>
@@ -546,6 +548,8 @@ window.addEventListener('DOMContentLoaded', async ()=>{
 ═══════════════════════════════════════════════ */
 const S = {
   colors:{ primary:'#E8913A', secondary:'#D4547B', accent:'#4ECDC4', bg:'#0d0d12' },
+  carousel: [],
+  galeria:  [],
   hero:{
     title1:'LA COMADRE', title2:'LOLA',
     subtitle:'Gastronomia - Shows en Vivo - El Mejor Carrete',
@@ -672,6 +676,98 @@ const SECTIONS={
       <div class="fld-div"></div>
     `).join('')
   },
+  carrusel:{
+    title:'🖼 Carrusel Hero',
+    html:()=>{
+      const p=S.colors.primary;
+      const slides=S.carousel.map((img,i)=>`
+        <div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#060609;">
+          <img src="${img.src}" style="width:100%;aspect-ratio:16/9;object-fit:cover;display:block;border-radius:9px;">
+          <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.5),transparent 50%)"></div>
+          <div style="position:absolute;bottom:8px;left:10px;font-size:10px;font-weight:700;color:rgba(255,255,255,.7);letter-spacing:1px">SLIDE ${i+1}</div>
+          <button onclick="removeCarouselSlide(${i})" style="position:absolute;top:7px;right:7px;background:rgba(244,67,54,.88);border:none;color:#fff;padding:4px 10px;border-radius:8px;font-size:11px;cursor:pointer;font-family:var(--fb)">✕ Quitar</button>
+        </div>`).join('');
+
+      const addArea = S.carousel.length < 6 ? `
+        <div style="margin-top:4px">
+          <div class="fld-section" style="margin-bottom:8px">AGREGAR IMAGEN</div>
+          <div class="fld-group">
+            <div class="fld-label">URL de imagen</div>
+            <div style="display:flex;gap:8px">
+              <input class="fld-input" id="carouselUrlInput" placeholder="https://..." style="flex:1">
+              <button onclick="addCarouselUrl()" style="padding:9px 14px;background:rgba(232,145,58,.2);border:1px solid var(--primary);border-radius:9px;color:var(--primary);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fb);white-space:nowrap">+ URL</button>
+            </div>
+          </div>
+          <div style="text-align:center;font-size:11px;color:var(--text-muted);padding:6px 0">— o —</div>
+          <div class="flyer-upload-area" style="aspect-ratio:16/9;min-height:100px" onclick="triggerCarouselPick()">
+            <div class="flyer-placeholder">
+              <span style="font-size:28px">📁</span>
+              <span style="font-size:12px;color:var(--text-muted);margin-top:6px">Subir desde computador</span>
+              <span style="font-size:10px;color:var(--text-muted);margin-top:2px">${S.carousel.length}/6 · JPG, PNG, WEBP · máx 5MB</span>
+            </div>
+          </div>
+          <input type="file" id="carouselInput" accept="image/*" style="display:none" onchange="handleCarouselUpload(this)">
+        </div>` : `<div style="text-align:center;font-size:12px;color:var(--text-muted);padding:10px;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid var(--border)">Máximo 6 slides alcanzado</div>`;
+
+      const clearBtn = S.carousel.length > 0 ? `
+        <div class="fld-div"></div>
+        <button onclick="clearCarousel()" style="width:100%;padding:8px;background:rgba(244,67,54,.08);border:1px solid rgba(244,67,54,.25);border-radius:8px;color:#ff6b6b;font-size:12px;cursor:pointer;font-family:var(--fb)">🗑 Limpiar todo el carrusel</button>` : '';
+
+      return `
+        <div class="fld-section">SLIDES ACTUALES (${S.carousel.length}/6)</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;line-height:1.6">Imágenes de fondo del hero. Se rotan cada 5 segundos con transición suave.</div>
+        <div style="display:flex;flex-direction:column;gap:8px">${slides||'<div style="text-align:center;padding:16px;color:var(--text-muted);font-size:12px;background:rgba(255,255,255,.02);border-radius:8px;border:1px dashed rgba(255,255,255,.1)">Sin slides aún</div>'}</div>
+        <div class="fld-div"></div>
+        ${addArea}
+        ${clearBtn}`;
+    }
+  },
+
+  galeria:{
+    title:'📸 Galería — Mejores Momentos',
+    html:()=>{
+      const fotos=S.galeria.map((f,i)=>`
+        <div style="position:relative;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#060609;">
+          <img src="${f.src}" style="width:100%;aspect-ratio:4/3;object-fit:cover;display:block;">
+          <button onclick="removeGaleriaFoto(${i})" style="position:absolute;top:5px;right:5px;background:rgba(244,67,54,.88);border:none;color:#fff;padding:3px 8px;border-radius:8px;font-size:10px;cursor:pointer">✕</button>
+          <input placeholder="Descripción (opcional)" value="${f.caption||''}"
+            oninput="updateGaleriaCaption(${i},this.value)"
+            style="position:absolute;bottom:0;left:0;right:0;border-radius:0 0 9px 9px;font-size:11px;padding:5px 8px;background:rgba(0,0,0,.8);border:none;border-top:1px solid rgba(255,255,255,.1);color:#f0f0f0;font-family:var(--fb);width:100%;outline:none">
+        </div>`).join('');
+
+      const addArea = S.galeria.length < 20 ? `
+        <div class="fld-group">
+          <div class="fld-label">URL de foto</div>
+          <div style="display:flex;gap:8px">
+            <input class="fld-input" id="galeriaUrlInput" placeholder="https://..." style="flex:1">
+            <button onclick="addGaleriaUrl()" style="padding:9px 14px;background:rgba(232,145,58,.2);border:1px solid var(--primary);border-radius:9px;color:var(--primary);font-size:12px;font-weight:700;cursor:pointer;font-family:var(--fb);white-space:nowrap">+ URL</button>
+          </div>
+        </div>
+        <div style="text-align:center;font-size:11px;color:var(--text-muted);padding:4px 0">— o —</div>
+        <div class="flyer-upload-area" style="aspect-ratio:4/3;min-height:90px" onclick="triggerGaleriaPick()">
+          <div class="flyer-placeholder">
+            <span style="font-size:28px">📸</span>
+            <span style="font-size:12px;color:var(--text-muted);margin-top:6px">Subir fotos</span>
+            <span style="font-size:10px;color:var(--text-muted);margin-top:2px">${S.galeria.length}/20 · múltiples archivos</span>
+          </div>
+        </div>
+        <input type="file" id="galeriaInput" accept="image/*" multiple style="display:none" onchange="handleGaleriaUpload(this)">
+      ` : `<div style="text-align:center;font-size:12px;color:var(--text-muted);padding:10px;background:rgba(255,255,255,.03);border-radius:8px;border:1px solid var(--border)">Máximo 20 fotos alcanzado</div>`;
+
+      const clearBtn = S.galeria.length > 0 ? `
+        <div class="fld-div"></div>
+        <button onclick="clearGaleria()" style="width:100%;padding:8px;background:rgba(244,67,54,.08);border:1px solid rgba(244,67,54,.25);border-radius:8px;color:#ff6b6b;font-size:12px;cursor:pointer;font-family:var(--fb)">🗑 Limpiar toda la galería</button>` : '';
+
+      return `
+        <div class="fld-section">FOTOS ACTUALES (${S.galeria.length}/20)</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;line-height:1.6">Se muestran en la sección "Mejores Momentos". Agrega un texto descriptivo a cada foto.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${fotos||'<div style="grid-column:1/-1;text-align:center;padding:16px;color:var(--text-muted);font-size:12px;background:rgba(255,255,255,.02);border-radius:8px;border:1px dashed rgba(255,255,255,.1)">Sin fotos aún</div>'}</div>
+        <div class="fld-div"></div>
+        ${addArea}
+        ${clearBtn}`;
+    }
+  },
+
   footer:{
     title:'📍 Información y Footer',
     html:()=>`
@@ -690,6 +786,9 @@ const SECTIONS={
    INIT EDITOR
 ═══════════════════════════════════════════════ */
 function initEditor(){
+  // Cargar carrusel y galería desde localStorage
+  try { const c=localStorage.getItem('lola_carousel'); if(c) S.carousel=JSON.parse(c)||[]; } catch{}
+  try { const g=localStorage.getItem('lola_galeria');  if(g) S.galeria=JSON.parse(g)||[];  } catch{}
   renderSection('hero');
   renderPreview();
 }
@@ -700,7 +799,7 @@ function gotoSection(name,btn){
   if(btn)btn.classList.add('active');
   renderSection(name);
   setTimeout(()=>{
-    const map={hero:'#pvhero',eventos:'#pvevents',footer:'#pvfooter'};
+    const map={hero:'#pvhero',eventos:'#pvevents',galeria:'#pvgaleria',footer:'#pvfooter'};
     const el=document.querySelector(map[name]);
     if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
   },80);
@@ -759,6 +858,35 @@ function renderPreview(){
     'especial':`background:${a}22;color:${a}`,
   };
 
+  // ── Carrusel en hero
+  const carouselBg = S.carousel.length
+    ? `background-image:url('${S.carousel[0].src}');background-size:cover;background-position:center;`
+    : `background:radial-gradient(ellipse at 50% 45%,${p}16 0%,${bg} 68%)`;
+  const carouselOverlay = S.carousel.length
+    ? `position:absolute;inset:0;background:linear-gradient(to bottom,${bg}70 0%,${bg}98 100%);`
+    : '';
+  const carouselDots = S.carousel.length > 1 ? `
+    <div style="display:flex;gap:6px;justify-content:center;margin-top:14px;">
+      ${S.carousel.map((_,i)=>`<div style="width:${i===0?'18px':'7px'};height:7px;border-radius:4px;background:${i===0?p:'rgba(255,255,255,.3)'};transition:all .3s"></div>`).join('')}
+    </div>` : '';
+  const carouselBadge = S.carousel.length ? `
+    <div style="position:absolute;top:10px;right:10px;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.15);padding:3px 10px;border-radius:20px;font-size:10px;color:#fff;font-weight:600;font-family:'Inter',sans-serif">
+      🖼 ${S.carousel.length} slide${S.carousel.length>1?'s':''}
+    </div>` : '';
+
+  // ── Galería preview
+  const galeriaHTML = S.galeria.length
+    ? `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+        ${S.galeria.slice(0,6).map(f=>`
+          <div style="border-radius:8px;overflow:hidden;aspect-ratio:4/3;background:rgba(20,20,30,.9)">
+            <img src="${f.src}" style="width:100%;height:100%;object-fit:cover;display:block">
+          </div>`).join('')}
+        ${S.galeria.length>6?`<div style="grid-column:1/-1;text-align:center;font-size:11px;color:#8a8aa0;padding:8px;font-family:'Inter',sans-serif">+${S.galeria.length-6} fotos más</div>`:''}
+      </div>`
+    : `<div style="text-align:center;padding:28px 20px;color:#8a8aa0;font-size:12px;background:rgba(255,255,255,.03);border-radius:10px;border:1px dashed rgba(255,255,255,.1);font-family:'Inter',sans-serif">
+        <div style="font-size:28px;margin-bottom:8px">📸</div>Sin fotos — Agrega en la sección Galería
+      </div>`;
+
   const evHTML=S.eventos.map(e=>`
     <div class="pv-ecard">
       <!-- FLYER -->
@@ -814,8 +942,9 @@ function renderPreview(){
       </div>
 
       <!-- HERO -->
-      <div class="pv-hero" id="pvhero" style="background:radial-gradient(ellipse at 50% 45%,${p}16 0%,${bg} 68%)">
-        ${parts}
+      <div class="pv-hero" id="pvhero" style="${carouselBg};position:relative;overflow:hidden;">
+        ${carouselOverlay ? `<div style="${carouselOverlay}pointer-events:none;z-index:1;position:absolute;inset:0"></div>` : ''}
+        ${carouselBadge}
         <div style="position:relative;z-index:2">
           <div class="pv-badge" style="color:${p};border:1px solid ${p}38;background:${p}10">${S.hero.badge}</div>
           <div class="pv-h1">${S.hero.title1} <span style="color:${p}">${S.hero.title2}</span></div>
@@ -825,6 +954,7 @@ function renderPreview(){
             <button class="pv-btn-sec">${S.hero.btn2}</button>
           </div>
           ${S.hero.roses?`<div class="pv-roses">🌹🌹🌹</div>`:''}
+          ${carouselDots}
         </div>
       </div>
 
@@ -835,6 +965,15 @@ function renderPreview(){
         <div class="pv-desc">Los mejores artistas nacionales en vivo. ¡No te los pierdas!</div>
         <div class="pv-divider" style="background:linear-gradient(90deg,${p},${s})"></div>
         <div class="pv-events">${evHTML}</div>
+      </div>
+
+      <!-- MEJORES MOMENTOS -->
+      <div class="pv-section" id="pvgaleria" style="background:${bg}10;border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);">
+        <span class="pv-lbl" style="color:${p}">📸 Nuestros Momentos</span>
+        <div class="pv-title">LOS MEJORES <span style="color:${p}">MOMENTOS</span></div>
+        <div class="pv-desc">Revive las mejores noches de La Comadre Lola.</div>
+        <div class="pv-divider" style="background:linear-gradient(90deg,${p},${s})"></div>
+        ${galeriaHTML}
       </div>
 
       <!-- FOOTER -->
@@ -914,6 +1053,119 @@ function removeFlyerImg(i){
   renderSection(currentSection);
   renderPreview();
   showToast('Flyer eliminado','info');
+}
+
+/* ═══════════════════════════════════════════════
+   CAROUSEL HANDLERS
+═══════════════════════════════════════════════ */
+function saveCarousel(){ localStorage.setItem('lola_carousel', JSON.stringify(S.carousel)); }
+
+function triggerCarouselPick(){ document.getElementById('carouselInput').click(); }
+
+function addCarouselUrl(){
+  const inp = document.getElementById('carouselUrlInput');
+  const url = (inp?.value || '').trim();
+  if (!url) { showToast('Ingresa una URL válida','error'); return; }
+  if (S.carousel.length >= 6) { showToast('Máximo 6 slides','error'); return; }
+  S.carousel.push({ src: url });
+  saveCarousel();
+  renderSection('carrusel');
+  renderPreview();
+  showToast('✅ Slide agregado');
+}
+
+function handleCarouselUpload(input){
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 5*1024*1024) { showToast('El archivo supera los 5MB','error'); return; }
+  if (!file.type.startsWith('image/')) { showToast('Solo se permiten imágenes','error'); return; }
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    S.carousel.push({ src: ev.target.result });
+    saveCarousel();
+    renderSection('carrusel');
+    renderPreview();
+    showToast('✅ Slide agregado al carrusel');
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeCarouselSlide(i){
+  S.carousel.splice(i, 1);
+  saveCarousel();
+  renderSection('carrusel');
+  renderPreview();
+  showToast('Slide eliminado','info');
+}
+
+function clearCarousel(){
+  if (!confirm('¿Limpiar todo el carrusel?')) return;
+  S.carousel = [];
+  saveCarousel();
+  renderSection('carrusel');
+  renderPreview();
+  showToast('Carrusel limpiado','info');
+}
+
+/* ═══════════════════════════════════════════════
+   GALERÍA HANDLERS
+═══════════════════════════════════════════════ */
+function saveGaleria(){ localStorage.setItem('lola_galeria', JSON.stringify(S.galeria)); }
+
+function triggerGaleriaPick(){ document.getElementById('galeriaInput').click(); }
+
+function addGaleriaUrl(){
+  const inp = document.getElementById('galeriaUrlInput');
+  const url = (inp?.value || '').trim();
+  if (!url) { showToast('Ingresa una URL válida','error'); return; }
+  if (S.galeria.length >= 20) { showToast('Máximo 20 fotos','error'); return; }
+  S.galeria.push({ src: url, caption: '' });
+  saveGaleria();
+  renderSection('galeria');
+  renderPreview();
+  showToast('✅ Foto agregada');
+}
+
+function handleGaleriaUpload(input){
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  let loaded = 0;
+  const space = 20 - S.galeria.length;
+  files.slice(0, space).forEach(file => {
+    if (!file.type.startsWith('image/') || file.size > 5*1024*1024) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      S.galeria.push({ src: ev.target.result, caption: '' });
+      loaded++;
+      saveGaleria();
+      renderSection('galeria');
+      renderPreview();
+      if (loaded === 1) showToast(`✅ ${Math.min(files.length,space)} foto(s) agregada(s)`);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function removeGaleriaFoto(i){
+  S.galeria.splice(i, 1);
+  saveGaleria();
+  renderSection('galeria');
+  renderPreview();
+  showToast('Foto eliminada','info');
+}
+
+function updateGaleriaCaption(i, val){
+  S.galeria[i].caption = val;
+  saveGaleria();
+}
+
+function clearGaleria(){
+  if (!confirm('¿Limpiar toda la galería?')) return;
+  S.galeria = [];
+  saveGaleria();
+  renderSection('galeria');
+  renderPreview();
+  showToast('Galería limpiada','info');
 }
 
 function exportChanges(){

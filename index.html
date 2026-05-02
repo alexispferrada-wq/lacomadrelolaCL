@@ -58,7 +58,7 @@ a{text-decoration:none;color:inherit;}
   position:relative;overflow:hidden;
   background:radial-gradient(ellipse at 50% 45%,rgba(232,145,58,.14) 0%,var(--bg) 65%);
 }
-.hero-particles{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.hero-particles{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2;}
 .hero-particles span{
   position:absolute;border-radius:50%;
   animation:float linear infinite;opacity:0;
@@ -70,7 +70,7 @@ a{text-decoration:none;color:inherit;}
   100%{transform:translateY(-20px) scale(1);opacity:0;}
 }
 .roses{
-  position:absolute;inset:0;pointer-events:none;overflow:hidden;
+  position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2;
 }
 .roses span{
   position:absolute;top:-40px;font-size:1.2rem;
@@ -81,7 +81,7 @@ a{text-decoration:none;color:inherit;}
   10%{opacity:.7;}
   100%{transform:translateY(110vh) rotate(360deg);opacity:0;}
 }
-.hero-content{position:relative;z-index:2;max-width:800px;}
+.hero-content{position:relative;z-index:4;max-width:800px;}
 .hero-badge{
   display:inline-block;font-size:11px;font-weight:700;letter-spacing:3px;
   text-transform:uppercase;padding:6px 20px;border-radius:50px;margin-bottom:24px;
@@ -116,7 +116,7 @@ a{text-decoration:none;color:inherit;}
 .btn-sec:hover{border-color:var(--p);background:rgba(232,145,58,.08);}
 .hero-roses{font-size:20px;letter-spacing:10px;opacity:.4;margin-top:8px;}
 .hero-scroll{
-  position:absolute;bottom:30px;left:50%;transform:translateX(-50%);
+  position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:4;
   display:flex;flex-direction:column;align-items:center;gap:6px;
   font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--tm);
 }
@@ -125,6 +125,95 @@ a{text-decoration:none;color:inherit;}
   animation:scrollPulse 1.8s ease-in-out infinite;
 }
 @keyframes scrollPulse{0%,100%{opacity:.3;transform:scaleY(.5);}50%{opacity:1;transform:scaleY(1);}}
+
+/* ── HERO CAROUSEL ── */
+.hero-carousel{position:absolute;inset:0;z-index:0;}
+.hero-carousel-slide{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center center;
+  opacity:0;transition:opacity 1.4s ease-in-out;
+}
+.hero-carousel-slide.active{opacity:1;}
+.hero-carousel-overlay{
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(13,13,18,.45) 0%,rgba(13,13,18,.6) 50%,rgba(13,13,18,.88) 100%);
+}
+.hero-carousel-dots{
+  position:absolute;bottom:72px;left:50%;transform:translateX(-50%);
+  z-index:5;display:flex;gap:8px;align-items:center;
+}
+.carousel-dot{
+  height:8px;border-radius:4px;
+  background:rgba(255,255,255,.3);border:none;cursor:pointer;padding:0;
+  transition:all var(--tr);width:8px;
+}
+.carousel-dot.active{background:var(--p);width:22px;}
+
+/* ── MEJORES MOMENTOS ── */
+.momentos{background:var(--bg3);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);}
+.momentos-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+  gap:14px;
+}
+.momento-item{
+  position:relative;overflow:hidden;border-radius:14px;
+  aspect-ratio:4/3;cursor:pointer;
+  background:rgba(16,16,26,.95);border:1px solid var(--bd);
+}
+.momento-item img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease;}
+.momento-item:hover img{transform:scale(1.07);}
+.momento-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 55%);
+  opacity:0;transition:opacity var(--tr);
+  display:flex;align-items:flex-end;padding:14px;
+}
+.momento-item:hover .momento-overlay{opacity:1;}
+.momento-caption{font-size:12px;font-weight:600;color:#fff;}
+.momentos-empty{
+  grid-column:1/-1;text-align:center;padding:64px 20px;color:var(--tm);
+}
+.momentos-empty-ico{font-size:48px;margin-bottom:16px;}
+
+/* ── LIGHTBOX ── */
+.lightbox{
+  position:fixed;inset:0;z-index:9000;
+  background:rgba(0,0,0,.93);
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.lightbox.open{display:flex;}
+.lightbox-img{max-width:90vw;max-height:84vh;border-radius:10px;object-fit:contain;position:relative;z-index:1;}
+.lightbox-close{
+  position:absolute;top:20px;right:24px;z-index:2;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+  color:#fff;font-size:20px;width:44px;height:44px;border-radius:50%;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background var(--tr);
+}
+.lightbox-close:hover{background:rgba(232,145,58,.4);}
+.lightbox-prev,.lightbox-next{
+  position:absolute;top:50%;transform:translateY(-50%);z-index:2;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  color:#fff;width:48px;height:48px;border-radius:50%;
+  cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;
+  transition:background var(--tr);
+}
+.lightbox-prev{left:20px;}
+.lightbox-next{right:20px;}
+.lightbox-prev:hover,.lightbox-next:hover{background:rgba(232,145,58,.4);}
+.lightbox-counter{
+  position:absolute;top:22px;left:50%;transform:translateX(-50%);z-index:2;
+  font-size:12px;color:rgba(255,255,255,.5);font-weight:600;
+  background:rgba(0,0,0,.45);padding:5px 14px;border-radius:20px;
+}
+.lightbox-caption{
+  position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:2;
+  font-size:13px;color:rgba(255,255,255,.8);font-weight:500;
+  background:rgba(0,0,0,.55);padding:6px 18px;border-radius:20px;
+  white-space:nowrap;max-width:80vw;overflow:hidden;text-overflow:ellipsis;display:none;
+}
+.lightbox-caption.visible{display:block;}
 
 /* ── SECTIONS ── */
 section{padding:90px 40px;}
@@ -307,6 +396,7 @@ footer{background:#07070e;padding:56px 40px 24px;border-top:1px solid var(--bd);
   <div class="nav-logo" onclick="scrollTo(0,0)">🌹 La Comadre Lola</div>
   <div class="nav-links">
     <a class="nav-link" onclick="scrollToId('eventos')">Eventos</a>
+    <a class="nav-link" onclick="scrollToId('momentos')">Galería</a>
     <a class="nav-link" onclick="scrollToId('reservas')">Reservas</a>
     <a class="nav-link" onclick="scrollToId('footer')">Contacto</a>
     <button class="nav-cta" onclick="scrollToId('reservas')">🎉 Reservar</button>
@@ -317,6 +407,7 @@ footer{background:#07070e;padding:56px 40px 24px;border-top:1px solid var(--bd);
 </nav>
 <div class="nav-mobile" id="navMobile">
   <a onclick="scrollToId('eventos');toggleMenu()">Eventos</a>
+  <a onclick="scrollToId('momentos');toggleMenu()">Galería</a>
   <a onclick="scrollToId('reservas');toggleMenu()">Reservas</a>
   <a onclick="scrollToId('footer');toggleMenu()">Contacto</a>
   <a onclick="scrollToId('reservas');toggleMenu()" style="color:var(--p)">🎉 Reservar</a>
@@ -324,6 +415,8 @@ footer{background:#07070e;padding:56px 40px 24px;border-top:1px solid var(--bd);
 
 <!-- ── HERO ── -->
 <section class="hero" id="inicio">
+  <div class="hero-carousel" id="heroCarousel"></div>
+  <div class="hero-carousel-overlay"></div>
   <div class="hero-particles" id="particles"></div>
   <div class="roses" id="roses"></div>
   <div class="hero-content">
@@ -336,6 +429,7 @@ footer{background:#07070e;padding:56px 40px 24px;border-top:1px solid var(--bd);
     </div>
     <div class="hero-roses">🌹🌹🌹</div>
   </div>
+  <div class="hero-carousel-dots" id="carouselDots"></div>
   <div class="hero-scroll">
     <div class="hero-scroll-dot"></div>
     scroll
@@ -352,6 +446,27 @@ footer{background:#07070e;padding:56px 40px 24px;border-top:1px solid var(--bd);
     <div class="eventos-grid" id="eventosGrid"></div>
   </div>
 </section>
+
+<!-- ── MEJORES MOMENTOS ── -->
+<section class="momentos" id="momentos">
+  <div style="max-width:1200px;margin:0 auto;">
+    <span class="sec-label">📸 Nuestros Momentos</span>
+    <h2 class="sec-title">LOS MEJORES <span>MOMENTOS</span></h2>
+    <p class="sec-desc">Revive las mejores noches de La Comadre Lola. Shows, carrete y pura emoción.</p>
+    <div class="sec-divider"></div>
+    <div class="momentos-grid" id="momentosGrid"></div>
+  </div>
+</section>
+
+<!-- ── LIGHTBOX ── -->
+<div class="lightbox" id="lightbox" onclick="if(event.target.id==='lightbox')closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <button class="lightbox-prev" onclick="lbNav(-1);event.stopPropagation()">&#8249;</button>
+  <img class="lightbox-img" id="lightboxImg" src="" alt="La Comadre Lola">
+  <button class="lightbox-next" onclick="lbNav(1);event.stopPropagation()">&#8250;</button>
+  <div class="lightbox-counter" id="lightboxCounter"></div>
+  <div class="lightbox-caption" id="lightboxCaption"></div>
+</div>
 
 <!-- ── RESERVAS ── -->
 <section class="reservas" id="reservas">
@@ -668,11 +783,146 @@ window.addEventListener('scroll', () => {
     window.scrollY > 40 ? 'rgba(13,13,18,.98)' : 'rgba(13,13,18,.92)';
 });
 
+/* ══════════════════════════════════════════
+   CAROUSEL
+══════════════════════════════════════════ */
+// Imágenes hardcodeadas — editar acá o via CMS → Exportar
+const CAROUSEL_IMAGES = [];
+
+let _carouselSlides = [];
+let _carouselIdx    = 0;
+let _carouselTimer  = null;
+
+function loadCarouselData() {
+  try {
+    const stored = localStorage.getItem('lola_carousel');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      _carouselSlides = parsed.length ? parsed : CAROUSEL_IMAGES;
+    } else {
+      _carouselSlides = CAROUSEL_IMAGES;
+    }
+  } catch { _carouselSlides = CAROUSEL_IMAGES; }
+}
+
+function initCarousel() {
+  loadCarouselData();
+  const container = document.getElementById('heroCarousel');
+  const dotsEl    = document.getElementById('carouselDots');
+  if (!_carouselSlides.length) { container.innerHTML=''; dotsEl.innerHTML=''; return; }
+
+  container.innerHTML = _carouselSlides.map((img, i) =>
+    `<div class="hero-carousel-slide${i===0?' active':''}" style="background-image:url('${img.src}')"></div>`
+  ).join('');
+  dotsEl.innerHTML = _carouselSlides.map((_, i) =>
+    `<button class="carousel-dot${i===0?' active':''}" onclick="goSlide(${i})"></button>`
+  ).join('');
+
+  _carouselIdx = 0;
+  clearInterval(_carouselTimer);
+  if (_carouselSlides.length > 1)
+    _carouselTimer = setInterval(() => goSlide((_carouselIdx + 1) % _carouselSlides.length), 5000);
+}
+
+window.goSlide = function(idx) {
+  const slides = document.querySelectorAll('.hero-carousel-slide');
+  const dots   = document.querySelectorAll('.carousel-dot');
+  if (!slides.length) return;
+  slides[_carouselIdx].classList.remove('active');
+  if (dots[_carouselIdx]) dots[_carouselIdx].classList.remove('active');
+  _carouselIdx = idx;
+  slides[_carouselIdx].classList.add('active');
+  if (dots[_carouselIdx]) dots[_carouselIdx].classList.add('active');
+  clearInterval(_carouselTimer);
+  if (slides.length > 1)
+    _carouselTimer = setInterval(() => goSlide((_carouselIdx + 1) % slides.length), 5000);
+};
+
+/* ══════════════════════════════════════════
+   GALERÍA — MEJORES MOMENTOS
+══════════════════════════════════════════ */
+// Fotos hardcodeadas — editar acá o via CMS → Exportar
+const GALERIA_FOTOS = [];
+
+let _galeriaFotos = [];
+let _lbCurrent    = 0;
+
+function loadGaleriaData() {
+  try {
+    const stored = localStorage.getItem('lola_galeria');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      _galeriaFotos = parsed.length ? parsed : GALERIA_FOTOS;
+    } else {
+      _galeriaFotos = GALERIA_FOTOS;
+    }
+  } catch { _galeriaFotos = GALERIA_FOTOS; }
+}
+
+function renderGaleria() {
+  const grid = document.getElementById('momentosGrid');
+  if (!_galeriaFotos.length) {
+    grid.innerHTML = `
+      <div class="momentos-empty">
+        <div class="momentos-empty-ico">📸</div>
+        <p style="font-size:15px;font-weight:600;color:var(--tx);margin-bottom:8px">Próximamente</p>
+        <p>Las mejores noches de La Comadre Lola en imágenes</p>
+      </div>`;
+    return;
+  }
+  grid.innerHTML = _galeriaFotos.map((f, i) => `
+    <div class="momento-item" onclick="openLightbox(${i})">
+      <img src="${f.src}" alt="${f.caption || 'La Comadre Lola'}" loading="lazy">
+      <div class="momento-overlay">
+        ${f.caption ? `<div class="momento-caption">${f.caption}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+window.openLightbox = function(idx) {
+  _lbCurrent = idx;
+  const f = _galeriaFotos[idx];
+  document.getElementById('lightboxImg').src = f.src;
+  const cap = document.getElementById('lightboxCaption');
+  cap.textContent = f.caption || '';
+  cap.className   = 'lightbox-caption' + (f.caption ? ' visible' : '');
+  document.getElementById('lightboxCounter').textContent = `${idx + 1} / ${_galeriaFotos.length}`;
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeLightbox = function() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+};
+
+window.lbNav = function(dir) {
+  _lbCurrent = (_lbCurrent + dir + _galeriaFotos.length) % _galeriaFotos.length;
+  const f = _galeriaFotos[_lbCurrent];
+  document.getElementById('lightboxImg').src = f.src;
+  const cap = document.getElementById('lightboxCaption');
+  cap.textContent = f.caption || '';
+  cap.className   = 'lightbox-caption' + (f.caption ? ' visible' : '');
+  document.getElementById('lightboxCounter').textContent = `${_lbCurrent + 1} / ${_galeriaFotos.length}`;
+};
+
+// Teclado — lightbox
+document.addEventListener('keydown', (e) => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'Escape')      window.closeLightbox();
+  if (e.key === 'ArrowLeft')   window.lbNav(-1);
+  if (e.key === 'ArrowRight')  window.lbNav(1);
+});
+
 /* ── Init ── */
 renderEventos();
 initParticles();
 initRoses();
 setMinDate();
+initCarousel();
+loadGaleriaData();
+renderGaleria();
 </script>
 </body>
 </html>
